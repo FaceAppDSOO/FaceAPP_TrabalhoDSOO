@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import br.com.dsoo.facebook.logic.Utils;
 import br.com.dsoo.facebook.logic.constants.AppData;
 import br.com.dsoo.facebook.logic.exceptions.NoSuchOptionException;
 import br.com.dsoo.facebook.user.User;
@@ -15,7 +16,6 @@ import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.Family;
-import facebook4j.ResponseList;
 
 public class Ui{
 
@@ -23,7 +23,7 @@ public class Ui{
 	private final char POST_STATUS_MESSAGE = '2';
 	private final char OBTAIN_ACTIVITIES_REPORT = '3';
 	private final char SEE_FAMILY_TREE = '4';
-	private final char SEARCH_NEAR_EVENTS = '5';
+	private final char USER_AGENDA = '5';
 	private final char QUIT = '0';
 	
 	private Clipboard clipboard;
@@ -39,33 +39,33 @@ public class Ui{
 		char option = '0';
 		do{
 			try{
-				option = showInput("--------------- Bem vindo! ---------------\n\n"
-						+ "[1] - Ver informações do usuário\n"
-						+ "[2] - Postar atualização de Status\n"
-						+ "[3] - Obter resumo de atividades\n"
-						+ "[4] - Ver árvore genealógica\n"
-						+ "[5] - Pesquisar eventos próximos\n"
-						+ "[0] - Sair").charAt(0);
+				option = showInput("--------------- Bem vindo! ---------------\n",
+						"[1] - Ver informações do usuário",
+						"[2] - Postar atualização de Status",
+						"[3] - Obter resumo de atividades",
+						"[4] - Ver árvore genealógica",
+						"[5] - Ver agenda",
+						"[0] - Sair").charAt(0);
 
 				switch(option){
 					case SEE_USER_DATA:
-						show(user.toString());
+						show("Informações do usuário:", user.toString());
 						break;
 						
 					case POST_STATUS_MESSAGE:
-						show("Postagem feita com sucesso!\nID: " + user.postStatusMessage(showInput("No que você está pensando?")));
+						show("Postagem feita com sucesso!", "ID: " + user.postStatusMessage(showInput("No que você está pensando?")));
 						break;
 
 					case OBTAIN_ACTIVITIES_REPORT:
-						show(user.getActivitiesReport());
+						show("Resumo de atividades:", user.getActivitiesReport());
 						break;
 						
 					case SEE_FAMILY_TREE:
-						show(formatFamily(user.getFamilyTree()));
+						show("Árvore genealógica:", formatFamily(user.getFamilyTree()));
 						break;
 						
-					case SEARCH_NEAR_EVENTS:
-						show(formatEvents(user.getNearEvents()));
+					case USER_AGENDA:
+						show("Agenda:", formatEvents(user.getUserAgenda()));
 						break;
 						
 					case QUIT:
@@ -80,8 +80,17 @@ public class Ui{
 		}while(option != QUIT);
 	}
 	
-	private String formatEvents(ResponseList<Event> nearEvents){
-		return "TODO";
+	private String formatEvents(ArrayList<Event> events){
+		String str = "";
+		
+		for(int i = 0; i < events.size(); i++){
+			str += events.get(i).getName() + ": " + Utils.dateToString(events.get(i).getStartTime()) + "\n";
+			
+			if(i > 0 && i < events.size() - 1)
+				str += "------------------------------------";
+		}
+		
+		return str.substring(0, str.length() - 1);
 	}
 
 	/**
@@ -138,8 +147,14 @@ public class Ui{
 	 * Exibe a mensagem solicitada
 	 * @param msg
 	 */
-	public void show(String msg){
-		System.out.println("\n" + msg);
+	public void show(String ... msg){
+		String str = "";
+		
+		for(String word : msg){
+			str += word + "\n";
+		}
+		
+		System.out.println(str.substring(0, str.length() - 1));
 	}
 	
 	/**
@@ -147,7 +162,7 @@ public class Ui{
 	 * @param msg
 	 * @return Dado inserido pelo usuário
 	 */
-	public String showInput(String msg){
+	public String showInput(String ... msg){
 		show(msg);
 
 		return input.nextLine();
@@ -159,7 +174,7 @@ public class Ui{
 	 * @return Código de autenticação
 	 */
 	public String showAuthenticationMessage(Facebook facebook){
-		selection = new StringSelection(facebook.getOAuthAuthorizationURL(AppData.AUTH_URL.getProperty()));
+		selection = new StringSelection(facebook.getOAuthAuthorizationURL(AppData.AUTH_URL.getValue()));
 		clipboard.setContents(selection, selection);
 		
 		return showInput("O link de autenticação foi colado na sua\nárea de transferência. Cole no seu\nnavegador e copie o código de resposta:");

@@ -4,12 +4,95 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import br.com.dsoo.facebook.logic.constants.Months;
 import br.com.dsoo.facebook.logic.constants.Time;
+import br.com.dsoo.facebook.logic.constants.WeekDays;
 
 public class Utils{
 
 	public Utils(){}
 
+	/**
+	 * Método similar ao <code>Date.toString()</code>, mas traduzido para o português.
+	 */
+	public static String dateToString(Date date){
+		String[] timeStamp = date.toString().split(" ");
+		String[] time = timeStamp[3].split(":");
+		
+		String weekDay = translate(timeStamp[0]);
+		String month = translate(timeStamp[1]);
+		
+		
+		return weekDay + ", " + timeStamp[2] + " de " + month + " de " + timeStamp[5] + ", às " + time[0] + ":" + time[1];
+	}
+	
+	public static String translate(String word){
+		switch(word){
+			// DIAS DA SEMANA
+			case "Sun":
+				return WeekDays.SUNDAY.getValue();
+				
+			case "Mon":
+				return WeekDays.MONDAY.getValue();
+				
+			case "Tue":
+				return WeekDays.TUESDAY.getValue();
+				
+			case "Wed":
+				return WeekDays.WEDNESDAY.getValue();
+				
+			case "Thu":
+				return WeekDays.THURSDAY.getValue();
+				
+			case "Fri":
+				return WeekDays.FRIDAY.getValue();
+				
+			case "Sat":
+				return WeekDays.SATURDAY.getValue();
+
+			
+			// MESES
+			case "Jan":
+				return Months.JANUARY.getValue();
+				
+			case "Feb":
+				return Months.FEBRUARY.getValue();
+				
+			case "Mar":
+				return Months.FEBRUARY.getValue();
+				
+			case "Apr":
+				return Months.APRIL.getValue();
+				
+			case "May":
+				return Months.MAY.getValue();
+				
+			case "Jun":
+				return Months.JUNE.getValue();
+				
+			case "Jul":
+				return Months.JULY.getValue();
+				
+			case "Aug":
+				return Months.AUGUST.getValue();
+				
+			case "Sep":
+				return Months.SEPTEMBER.getValue();
+				
+			case "Oct":
+				return Months.OCTOBER.getValue();
+				
+			case "Nov":
+				return Months.NOVEMBER.getValue();
+				
+			case "Dec":
+				return Months.DECEMBER.getValue();
+				
+			default:
+				return "_" + word;
+		}
+	}
+	
 	/**
 	 * Converte uma <code>String</code> timeStamp em data
 	 * @param date

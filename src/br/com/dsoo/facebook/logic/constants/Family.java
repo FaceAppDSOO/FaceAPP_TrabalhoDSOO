@@ -10,12 +10,12 @@ public enum Family{
 	GRANDSONS("grand(son|daughter)"),
 	UNDEFINED("undefined");
 
-	private String type;
+	private String value;
 	Family(String type){
-		this.type = type;
+		this.value = type;
 	}
 
-	public String getType(){
-		return type;
+	public String getValue(){
+		return value;
 	}
 }

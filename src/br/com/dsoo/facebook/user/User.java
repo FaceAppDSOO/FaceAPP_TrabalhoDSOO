@@ -13,9 +13,7 @@ import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.Family;
 import facebook4j.Friend;
-import facebook4j.GeoLocation;
 import facebook4j.Like;
-import facebook4j.Location;
 import facebook4j.Paging;
 import facebook4j.Post;
 import facebook4j.Reading;
@@ -54,19 +52,19 @@ public class User{
 		ArrayList<Family> undefined = new ArrayList<>();
 		
 		for(Family p : family){
-			if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.GRANDPARENT.getType())){
+			if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.GRANDPARENT.getValue())){
 				gParents.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.PARENTS.getType())){
+			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.PARENTS.getValue())){
 				parents.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.UNCLES.getType())){
+			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.UNCLES.getValue())){
 				uncles.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.BROTHERS_AND_SISTERS.getType())){
+			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.BROTHERS_AND_SISTERS.getValue())){
 				brothers.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.COUSINS.getType())){
+			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.COUSINS.getValue())){
 				cousins.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.SONS.getType())){
+			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.SONS.getValue())){
 				sons.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.GRANDSONS.getType())){
+			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.GRANDSONS.getValue())){
 				grandsons.add(p);
 			}else{
 				undefined.add(p);
@@ -148,8 +146,30 @@ public class User{
 		+ likes + " novos Likes\n";
 	}
 	
-	public ResponseList<Event> getNearEvents() throws FacebookException{
-		return null; //TEMPORÁRIO
+	public ArrayList<Event> getUserAgenda() throws FacebookException{
+		ResponseList<Event> events = fb.getEvents();
+		Paging<Event> paging = null;
+		
+		ArrayList<Event> ev = new ArrayList<>();
+		
+		for(Event e : events){
+			if(e.getEndTime() != null && e.getEndTime().before(new Date()))
+				break;
+			
+			if(e.getStartTime().before(new Date()))
+				ev.add(e);
+			
+			paging = events.getPaging();
+			
+			if(paging != null){
+				events = fb.fetchNext(paging);
+				continue;
+			}
+			
+			break;
+		}
+				
+		return ev;
 	}
 
 	/**

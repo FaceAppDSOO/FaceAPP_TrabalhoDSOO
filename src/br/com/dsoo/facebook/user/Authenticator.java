@@ -42,9 +42,9 @@ public class Authenticator{
 		cb = new ConfigurationBuilder();
 
 		cb.setDebugEnabled(true)
-		.setOAuthAppId(AppData.AUTH_APP_ID.getProperty())
-		.setOAuthAppSecret(AppData.AUTH_APP_SECRET.getProperty())
-		.setOAuthPermissions(AppData.AUTH_APP_PERMISSIONS.getProperty());
+		.setOAuthAppId(AppData.AUTH_APP_ID.getValue())
+		.setOAuthAppSecret(AppData.AUTH_APP_SECRET.getValue())
+		.setOAuthPermissions(AppData.AUTH_APP_PERMISSIONS.getValue());
 
 		conf = cb.build();
 	}
@@ -82,7 +82,7 @@ public class Authenticator{
 	 * @return Objeto AccessToken com os dados de autenticação
 	 */
 	private AccessToken getOAuthCredentials(Facebook facebook){
-		String authUrl = facebook.getOAuthAuthorizationURL(AppData.AUTH_URL.getProperty());
+		String authUrl = facebook.getOAuthAuthorizationURL(AppData.AUTH_URL.getValue());
 
 		URL url = null;
 		BufferedReader reader = null;
