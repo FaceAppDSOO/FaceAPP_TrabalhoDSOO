@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import br.com.dsoo.facebook.logic.Utils;
 import br.com.dsoo.facebook.logic.constants.Time;
 import br.com.dsoo.facebook.logic.exceptions.TypeMismatchException;
-import br.com.dsoo.facebook.logic.utils.Utils;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.Family;

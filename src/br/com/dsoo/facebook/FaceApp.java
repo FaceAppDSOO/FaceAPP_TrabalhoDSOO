@@ -2,8 +2,8 @@ package br.com.dsoo.facebook;
 
 import java.text.ParseException;
 
-import br.com.dsoo.facebook.logic.Authenticator;
 import br.com.dsoo.facebook.logic.exceptions.AuthenticationFailedException;
+import br.com.dsoo.facebook.user.Authenticator;
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.Ui;
 import facebook4j.FacebookException;

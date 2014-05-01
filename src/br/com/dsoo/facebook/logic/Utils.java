@@ -1,4 +1,4 @@
-package br.com.dsoo.facebook.logic.utils;
+package br.com.dsoo.facebook.logic;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

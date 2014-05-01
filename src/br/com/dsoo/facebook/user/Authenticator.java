@@ -1,4 +1,4 @@
-package br.com.dsoo.facebook.logic;
+package br.com.dsoo.facebook.user;
 
 import java.io.BufferedReader;
 import java.io.IOException;
