@@ -4,11 +4,9 @@ import java.text.ParseException;
 
 import br.com.dsoo.facebook.logic.Authenticator;
 import br.com.dsoo.facebook.logic.exceptions.AuthenticationFailedException;
-import br.com.dsoo.facebook.logic.exceptions.TypeMismatchException;
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.Ui;
 import facebook4j.FacebookException;
-import facebook4j.internal.org.json.JSONException;
 
 public class FaceApp {
 
@@ -30,7 +28,7 @@ public class FaceApp {
 		
 		try{
 			ui.showOptions(user);
-		}catch(IllegalStateException | FacebookException | ParseException | JSONException | TypeMismatchException e){
+		}catch(IllegalStateException | FacebookException | ParseException e){
 			ui.show(e.getMessage());
 		}finally{
 			user.logout();

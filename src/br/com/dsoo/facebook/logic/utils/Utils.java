@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import br.com.dsoo.facebook.logic.constants.Time;
-import br.com.dsoo.facebook.logic.exceptions.TypeMismatchException;
 
 public class Utils{
 
@@ -16,11 +15,19 @@ public class Utils{
 	 * @param date
 	 * @return Objeto <code>Date</code> com a data da <code>String</code>
 	 * @throws ParseException
-	 * @throws TypeMismatchException
 	 */
-	public static Date toDate(String date) throws ParseException, TypeMismatchException{
+	public static Date toDate(String date) throws ParseException{
+		String divider = "";
+		
+		for(int i = 0; i < date.length(); i++){
+			if(!Character.isDigit(date.charAt(i))){
+				divider += date.charAt(i);
+				break;
+			}
+		}
+		
 		String[] timeStamp = date.split("T");
-		timeStamp = timeStamp[0].split("-");
+		timeStamp = timeStamp[0].split(divider);
 		
 		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 		
