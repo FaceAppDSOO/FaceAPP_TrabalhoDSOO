@@ -17,6 +17,9 @@ public class Utils{
 	 * @throws ParseException
 	 */
 	public static Date toDate(String date) throws ParseException{
+		if(date == null)
+			return null;
+		
 		String divider = "";
 		
 		for(int i = 0; i < date.length(); i++){
@@ -52,6 +55,9 @@ public class Utils{
 	 * @return Diferença de tempo entre as datas fornecidas (<b>0</b> se não houver diferença)
 	 */
 	public static long differenceBetweenDates(Date beforeDate, Date afterDate, Time param){
+		if(beforeDate == null || afterDate == null)
+			return -1;
+		
 		if(beforeDate.getTime() == afterDate.getTime())
 			return 0;
 		

@@ -11,9 +11,11 @@ import java.util.Scanner;
 import br.com.dsoo.facebook.logic.constants.AppData;
 import br.com.dsoo.facebook.logic.exceptions.NoSuchOptionException;
 import br.com.dsoo.facebook.user.User;
+import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.Family;
+import facebook4j.ResponseList;
 
 public class Ui{
 
@@ -21,6 +23,7 @@ public class Ui{
 	private final char POST_STATUS_MESSAGE = '2';
 	private final char OBTAIN_ACTIVITIES_REPORT = '3';
 	private final char SEE_FAMILY_TREE = '4';
+	private final char SEARCH_NEAR_EVENTS = '5';
 	private final char QUIT = '0';
 	
 	private Clipboard clipboard;
@@ -41,6 +44,7 @@ public class Ui{
 						+ "[2] - Postar atualização de Status\n"
 						+ "[3] - Obter resumo de atividades\n"
 						+ "[4] - Ver árvore genealógica\n"
+						+ "[5] - Pesquisar eventos próximos\n"
 						+ "[0] - Sair").charAt(0);
 
 				switch(option){
@@ -60,6 +64,10 @@ public class Ui{
 						show(formatFamily(user.getFamilyTree()));
 						break;
 						
+					case SEARCH_NEAR_EVENTS:
+						show(formatEvents(user.getNearEvents()));
+						break;
+						
 					case QUIT:
 						return;
 
@@ -72,6 +80,10 @@ public class Ui{
 		}while(option != QUIT);
 	}
 	
+	private String formatEvents(ResponseList<Event> nearEvents){
+		return "TODO";
+	}
+
 	/**
 	 * 
 	 * @param

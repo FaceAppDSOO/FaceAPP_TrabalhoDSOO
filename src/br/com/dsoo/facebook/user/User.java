@@ -8,11 +8,14 @@ import java.util.HashMap;
 import br.com.dsoo.facebook.logic.Utils;
 import br.com.dsoo.facebook.logic.constants.Time;
 import br.com.dsoo.facebook.logic.exceptions.TypeMismatchException;
+import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.Family;
 import facebook4j.Friend;
+import facebook4j.GeoLocation;
 import facebook4j.Like;
+import facebook4j.Location;
 import facebook4j.Paging;
 import facebook4j.Post;
 import facebook4j.Reading;
@@ -144,6 +147,10 @@ public class User{
 		+ statuses + " novas atualizações de Status\n"
 		+ likes + " novos Likes\n";
 	}
+	
+	public ResponseList<Event> getNearEvents() throws FacebookException{
+		return null; //TEMPORÁRIO
+	}
 
 	/**
 	 * Realiza um post no Facebook
@@ -216,9 +223,13 @@ public class User{
 		String data = "";
 		try{
 			data = "ID: " + getId()
-				+ "\nNome: " + getName()
-				+ "\nIdade: " + getAge() + " anos"
-				+ "\n\nNúmero de amigos: " + friends.size();
+				+ "\nNome: " + getName();
+			
+			int age = getAge();
+			if(age != -1 && age != 0)
+				data += "\nIdade: " + age + " anos";
+
+			data += "\n\nNúmero de amigos: " + friends.size();
 
 			if(fb.getMe().getRelationshipStatus() != null){
 				data += "\n\nEm um relacionamento sério";
