@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.apache.commons.mail.EmailException;
+
+import br.com.dsoo.facebook.logic.Services;
 import br.com.dsoo.facebook.logic.Utils;
 import br.com.dsoo.facebook.logic.constants.Time;
 import br.com.dsoo.facebook.logic.exceptions.TypeMismatchException;
@@ -23,6 +26,7 @@ import facebook4j.auth.AccessToken;
 public class User{
 
 	private String name;
+	private Services s;
 	
 	private Facebook fb;
 	private ResponseList<Friend> friends;
@@ -33,6 +37,7 @@ public class User{
 		friends = fb.getFriends();
 		family = fb.getFamily();
 		name = fb.getName();
+		s = new Services();
 	}
 
 	/**
@@ -87,13 +92,14 @@ public class User{
 	 * @return Resumo
 	 * @throws FacebookException
 	 * @throws ParseException 
+	 * @throws EmailException 
 	 * @throws TypeMismatchException 
 	 */
-	public String getActivitiesReport() throws FacebookException, ParseException{
-		Date since = Utils.toDate("2014-04-01");
+	public String getActivitiesReport() throws FacebookException, ParseException, EmailException{
+		Date since = Utils.toDate("04-01-2014");
 
 		ResponseList<Post> allStatuses = fb.getStatuses((new Reading()).since(since));
-		ResponseList<Like> allLikes = fb.likes().getUserLikes((new Reading()).since(since));
+		ResponseList<Like> allPageLikes = fb.likes().getUserLikes((new Reading()).since(since));
 
 		int statuses = 0;
 		int likes = 0;
@@ -120,8 +126,8 @@ public class User{
 			break;
 		}
 
-		likesLoop: while(allLikes != null){
-			for(Like like : allLikes){
+		likesLoop: while(allPageLikes != null){
+			for(Like like : allPageLikes){
 				if(like.getCreatedTime().before(since)){
 					break likesLoop;
 				}
@@ -129,10 +135,10 @@ public class User{
 				likes++;
 			}
 
-			likePaging = allLikes.getPaging();
+			likePaging = allPageLikes.getPaging();
 
 			if(likePaging != null){
-				allLikes = fb.fetchNext(likePaging);
+				allPageLikes = fb.fetchNext(likePaging);
 				continue;
 			}
 
@@ -141,9 +147,14 @@ public class User{
 
 		long diff = Utils.differenceBetweenDates(since, new Date(), Time.DAYS);
 
-		return "Atividade de " + name.split(" ")[0] + " dos últimos " + diff + " dias:\n\n"
-		+ statuses + " novas atualizações de Status\n"
-		+ likes + " novos Likes\n";
+		String str = "Atividade de " + name.split(" ")[0] + " dos últimos " + diff + " dias:\n\n"
+				+ statuses + " novas atualizações de Status\n"
+				+ likes + " novas páginas curtidas\n";
+		
+		//if(s.getSettings().sendActivitiesEmail())
+		//s.sendEmail(this, str, "raphass22@gmail.com");//s.getSettings().getEmailTo();
+		
+		return str;
 	}
 	
 	public ArrayList<Event> getUserAgenda() throws FacebookException{
@@ -184,12 +195,19 @@ public class User{
 
 	/**
 	 * 
-	 * @return Amigos do usuário
-	 * @throws IllegalStateException
-	 * @throws FacebookException
+	 * @return Nome do usuário
 	 */
 	public String getName(){
 		return name;
+	}
+	
+	/**
+	 * 
+	 * @return Primeiro nome do usuário
+	 * @throws FacebookException
+	 */
+	public String getFirstName() throws FacebookException{
+		return fb.getMe().getFirstName();
 	}
 
 	/**

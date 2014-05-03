@@ -2,6 +2,8 @@ package br.com.dsoo.facebook;
 
 import java.text.ParseException;
 
+import org.apache.commons.mail.EmailException;
+
 import br.com.dsoo.facebook.logic.exceptions.AuthenticationFailedException;
 import br.com.dsoo.facebook.user.Authenticator;
 import br.com.dsoo.facebook.user.User;
@@ -10,7 +12,7 @@ import facebook4j.FacebookException;
 
 public class FaceApp {
 
-	public static void main(String[] args) {
+	public static void main(String[] args){
 
 		Ui ui = new Ui();
 		Authenticator auth = new Authenticator();
@@ -28,7 +30,7 @@ public class FaceApp {
 		
 		try{
 			ui.showOptions(user);
-		}catch(IllegalStateException | FacebookException | ParseException e){
+		}catch(IllegalStateException | FacebookException | ParseException | EmailException e){
 			ui.show(e.getMessage());
 		}finally{
 			user.logout();

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import org.apache.commons.mail.EmailException;
+
 import br.com.dsoo.facebook.logic.Utils;
 import br.com.dsoo.facebook.logic.constants.AppData;
 import br.com.dsoo.facebook.logic.exceptions.NoSuchOptionException;
@@ -35,7 +37,7 @@ public class Ui{
 		clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	}
 	
-	public void showOptions(User user) throws FacebookException, ParseException{
+	public void showOptions(User user) throws FacebookException, ParseException, EmailException{
 		char option = '0';
 		do{
 			try{
@@ -80,6 +82,11 @@ public class Ui{
 		}while(option != QUIT);
 	}
 	
+	/**
+	 * 
+	 * @param events
+	 * @return String formatada com os eventos
+	 */
 	private String formatEvents(ArrayList<Event> events){
 		String str = "";
 		
@@ -96,7 +103,7 @@ public class Ui{
 	/**
 	 * 
 	 * @param
-	 * @return String com a família formatada
+	 * @return String formatada com a família
 	 */
 	public String formatFamily(HashMap<br.com.dsoo.facebook.logic.constants.Family, ArrayList<Family>> f){
 		br.com.dsoo.facebook.logic.constants.Family[] keySet = {

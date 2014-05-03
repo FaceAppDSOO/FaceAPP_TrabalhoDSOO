@@ -11,9 +11,11 @@ import br.com.dsoo.facebook.logic.constants.WeekDays;
 public class Utils{
 
 	public Utils(){}
-
+	
 	/**
 	 * Método similar ao <code>Date.toString()</code>, mas traduzido para o português.
+	 * @param date
+	 * @return Data formatada
 	 */
 	public static String dateToString(Date date){
 		String[] timeStamp = date.toString().split(" ");
@@ -26,6 +28,11 @@ public class Utils{
 		return weekDay + ", " + timeStamp[2] + " de " + month + " de " + timeStamp[5] + ", às " + time[0] + ":" + time[1];
 	}
 	
+	/**
+	 * Traduz dias da semana e meses
+	 * @param word
+	 * @return Tradução
+	 */
 	public static String translate(String word){
 		switch(word){
 			// DIAS DA SEMANA
@@ -95,8 +102,8 @@ public class Utils{
 	
 	/**
 	 * Converte uma <code>String</code> timeStamp em data
-	 * @param date
-	 * @return Objeto <code>Date</code> com a data da <code>String</code>
+	 * @param date - Data no formato <code>MM/dd/yyyy</code>
+	 * @return Objeto <code>Date</code> com a data indicada na <code>String</code>
 	 * @throws ParseException
 	 */
 	public static Date toDate(String date) throws ParseException{
@@ -117,7 +124,7 @@ public class Utils{
 		
 		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 		
-		return formatter.parse(timeStamp[1] + "/" + timeStamp[2] + "/" + timeStamp[0]);
+		return formatter.parse(timeStamp[0] + "/" + timeStamp[1] + "/" + timeStamp[2]);
 	}
 	
 	/**
