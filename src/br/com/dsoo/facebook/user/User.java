@@ -159,34 +159,16 @@ public class User{
 		String str = "Atividade de " + name.split(" ")[0] + " dos últimos " + diff + " dias:\n\n"
 				+ statuses + " novas atualizações de Status\n"
 				+ likes + " novas páginas curtidas\n";
-		
-<<<<<<< HEAD
-		//if(s.getSettings().sendActivitiesEmail())
-		//s.sendEmail(this, str, "raphass22@gmail.com");//s.getSettings().getEmailTo();
-		getName();
-		getName();
-		getName();
-		getName();
-		getName();
-		getName();
-		getName();
-		getName();
-		getName();
-		getName();
-		getName();
-		getName();
-		
-=======
+
 		if(ui.showInput("Você deseja enviar esse relatório por email?").charAt(0) == Character.toLowerCase('s')){
 			String[] emails = ui.showInput("Para qual email deseja enviar o relatório? (Para mais de um destinatário, separe os emails com vírgulas)").split(",");
-			
+
 			for(String email : emails){
 				email = email.trim();
 			}
-			
-			s.sendActivitiesEmail(this, str, emails); //TEMPORÁRIO
+
+			s.sendActivitiesEmail(this, str, emails);
 		}
->>>>>>> 4f8025bd15f489fba4feb86d3f7055d7eac28d3d
 		
 		return str;
 	}
