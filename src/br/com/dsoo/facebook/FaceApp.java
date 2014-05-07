@@ -21,7 +21,7 @@ public class FaceApp {
 		User user = null;
 		do{
 			try{
-				user = new User(auth.authenticate());
+				user = new User(auth.authenticate(), ui);
 			}catch(FacebookException e1){
 				e1.printStackTrace();
 			}catch(AuthenticationFailedException e){

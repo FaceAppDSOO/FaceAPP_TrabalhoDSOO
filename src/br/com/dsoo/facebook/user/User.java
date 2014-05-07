@@ -13,6 +13,7 @@ import br.com.dsoo.facebook.logic.Services;
 import br.com.dsoo.facebook.logic.Utils;
 import br.com.dsoo.facebook.logic.constants.Time;
 import br.com.dsoo.facebook.logic.exceptions.TypeMismatchException;
+import br.com.dsoo.facebook.view.Ui;
 import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -30,11 +31,14 @@ public class User{
 	private String name;
 	private Services s;
 	
+	private Ui ui;
+	
 	private Facebook fb;
 	private ResponseList<Friend> friends;
 	private ResponseList<Family> family;
 
-	public User(Facebook f) throws FacebookException, IOException{
+	public User(Facebook f, Ui ui) throws FacebookException, IOException{
+		this.ui = ui;
 		fb = f;
 		friends = fb.getFriends();
 		family = fb.getFamily();
@@ -156,7 +160,15 @@ public class User{
 				+ statuses + " novas atualizações de Status\n"
 				+ likes + " novas páginas curtidas\n";
 		
-		s.sendActivitiesEmail(this, str, "raphass22@gmail.com", "marcio.tbms@gmail.com"); //TEMPORÁRIO
+		if(ui.showInput("Você deseja enviar esse relatório por email?").charAt(0) == Character.toLowerCase('s')){
+			String[] emails = ui.showInput("Para qual email deseja enviar o relatório? (Para mais de um destinatário, separe os emails com vírgulas)").split(",");
+			
+			for(String email : emails){
+				email = email.trim();
+			}
+			
+			s.sendActivitiesEmail(this, str, emails); //TEMPORÁRIO
+		}
 		
 		return str;
 	}
