@@ -1,8 +1,9 @@
 package br.com.dsoo.facebook;
 
+import java.io.IOException;
 import java.text.ParseException;
 
-import org.apache.commons.mail.EmailException;
+import javax.mail.MessagingException;
 
 import br.com.dsoo.facebook.logic.exceptions.AuthenticationFailedException;
 import br.com.dsoo.facebook.user.Authenticator;
@@ -20,17 +21,19 @@ public class FaceApp {
 		User user = null;
 		do{
 			try{
-				user = new User(auth.authenticate());
+				user = new User(auth.authenticate(), ui);
 			}catch(FacebookException e1){
 				e1.printStackTrace();
 			}catch(AuthenticationFailedException e){
+				ui.show(e.getMessage());
+			}catch(IOException e){
 				ui.show(e.getMessage());
 			}
 		}while(!user.isAuthenticated());
 		
 		try{
 			ui.showOptions(user);
-		}catch(IllegalStateException | FacebookException | ParseException | EmailException e){
+		}catch(IllegalStateException | FacebookException | ParseException | MessagingException | IOException e){
 			ui.show(e.getMessage());
 		}finally{
 			user.logout();

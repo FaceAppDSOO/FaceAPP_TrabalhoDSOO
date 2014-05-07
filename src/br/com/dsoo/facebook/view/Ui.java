@@ -3,12 +3,14 @@ package br.com.dsoo.facebook.view;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import org.apache.commons.mail.EmailException;
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 
 import br.com.dsoo.facebook.logic.Utils;
 import br.com.dsoo.facebook.logic.constants.AppData;
@@ -37,7 +39,7 @@ public class Ui{
 		clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	}
 	
-	public void showOptions(User user) throws FacebookException, ParseException, EmailException{
+	public void showOptions(User user) throws FacebookException, ParseException, AddressException, MessagingException, IOException{
 		char option = '0';
 		do{
 			try{
