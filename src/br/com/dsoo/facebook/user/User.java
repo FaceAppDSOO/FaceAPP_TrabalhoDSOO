@@ -157,8 +157,10 @@ public class User{
 		return str;
 	}
 	
-	public ArrayList<Event> getUserAgenda() throws FacebookException{
-		ResponseList<Event> events = fb.getEvents();
+	public ArrayList<Event> getUserAgenda() throws FacebookException, ParseException{
+		Date since = Utils.toDate("04/01/2014");
+		
+		ResponseList<Event> events = fb.getEvents((new Reading()).since(since));
 		Paging<Event> paging = null;
 		
 		ArrayList<Event> ev = new ArrayList<>();
