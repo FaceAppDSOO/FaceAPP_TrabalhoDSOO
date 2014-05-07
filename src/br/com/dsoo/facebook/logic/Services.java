@@ -1,15 +1,20 @@
 package br.com.dsoo.facebook.logic;
 
-import org.apache.commons.mail.EmailException;
-import org.apache.commons.mail.SimpleEmail;
+import java.io.IOException;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 
 import facebook4j.FacebookException;
-import br.com.dsoo.facebook.logic.constants.AppData;
 import br.com.dsoo.facebook.user.User;
+
 
 public class Services{
 
-	public Services(){
+	private Emailer emailer;
+	
+	public Services() throws IOException{
+		emailer = new Emailer();
 		//CARREGA AS CONFIGURAÇÕES
 	}
 
@@ -18,19 +23,13 @@ public class Services{
 	 * @param user Usuário ativo
 	 * @param msg Mensage,
 	 * @param to Destinatário
-	 * @throws EmailException
-	 * @throws FacebookException
+	 * @throws MessagingException 
+	 * @throws AddressException
+	 * @throws FacebookException 
+	 * @throws IOException 
 	 */
-	public void sendEmail(User user, String msg, String ... to) throws EmailException, FacebookException{
-		SimpleEmail email = new SimpleEmail();
-		email.setHostName("smtp.gmail.com");
-		email.setFrom(AppData.APP_EMAIL.getValue());
-		email.addTo(to);
-		email.setSubject("Resumo de atividades de " + user.getFirstName());
-		email.setMsg(msg);
-		email.setAuthentication(AppData.APP_EMAIL_LOGIN.getValue(), AppData.APP_EMAIL_PASS.getValue());
-		email.setSmtpPort(465);
-		email.setSSLOnConnect(true);
-		email.send();
+	public void sendActivitiesEmail(User user, String msg, String ... to) throws AddressException, MessagingException, FacebookException, IOException{
+		emailer.sendEmail(msg, "Resumo de atividades de " + user.getFirstName(), to);
+		Emailer.refreshConfig();
 	}
 }

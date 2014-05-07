@@ -1,11 +1,13 @@
 package br.com.dsoo.facebook.user;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.apache.commons.mail.EmailException;
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 
 import br.com.dsoo.facebook.logic.Services;
 import br.com.dsoo.facebook.logic.Utils;
@@ -32,7 +34,7 @@ public class User{
 	private ResponseList<Friend> friends;
 	private ResponseList<Family> family;
 
-	public User(Facebook f) throws FacebookException{
+	public User(Facebook f) throws FacebookException, IOException{
 		fb = f;
 		friends = fb.getFriends();
 		family = fb.getFamily();
@@ -93,9 +95,12 @@ public class User{
 	 * @throws FacebookException
 	 * @throws ParseException 
 	 * @throws EmailException 
+	 * @throws IOException 
+	 * @throws MessagingException 
+	 * @throws AddressException 
 	 * @throws TypeMismatchException 
 	 */
-	public String getActivitiesReport() throws FacebookException, ParseException, EmailException{
+	public String getActivitiesReport() throws FacebookException, ParseException, AddressException, MessagingException, IOException{
 		Date since = Utils.toDate("04-01-2014");
 
 		ResponseList<Post> allStatuses = fb.getStatuses((new Reading()).since(since));
@@ -151,8 +156,7 @@ public class User{
 				+ statuses + " novas atualizações de Status\n"
 				+ likes + " novas páginas curtidas\n";
 		
-		//if(s.getSettings().sendActivitiesEmail())
-		//s.sendEmail(this, str, "raphass22@gmail.com");//s.getSettings().getEmailTo();
+		s.sendActivitiesEmail(this, str, "raphass22@gmail.com", "marcio.tbms@gmail.com"); //TEMPORÁRIO
 		
 		return str;
 	}
@@ -165,23 +169,25 @@ public class User{
 		
 		ArrayList<Event> ev = new ArrayList<>();
 		
-		for(Event e : events){
-			if(e.getEndTime() != null && e.getEndTime().before(new Date()))
-				break;
-			
-			if(e.getStartTime().before(new Date()))
-				ev.add(e);
-			
+		eventsLoop: while(events != null){
+			for(Event e : events){
+				if(e.getEndTime() != null && e.getEndTime().before(new Date()))
+					break eventsLoop;
+
+				if(e.getStartTime().before(new Date()))
+					ev.add(e);
+			}
+
 			paging = events.getPaging();
-			
+
 			if(paging != null){
 				events = fb.fetchNext(paging);
 				continue;
 			}
-			
+
 			break;
 		}
-				
+
 		return ev;
 	}
 
@@ -271,9 +277,9 @@ public class User{
 
 			data += "\n\nNúmero de amigos: " + friends.size();
 
-			if(fb.getMe().getRelationshipStatus() != null){
-				data += "\n\nEm um relacionamento sério";
-			}
+//			if(fb.getMe().getRelationshipStatus() != null){
+//				data += "\n\nEm um relacionamento sério";
+//			}
 		}catch(IllegalStateException | FacebookException | ParseException e){
 			e.printStackTrace();
 		}
