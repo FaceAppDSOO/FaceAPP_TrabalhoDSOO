@@ -161,13 +161,7 @@ public class User{
 				+ likes + " novas páginas curtidas\n";
 		
 		if(ui.showInput("Você deseja enviar esse relatório por email?").charAt(0) == Character.toLowerCase('s')){
-			String[] emails = ui.showInput("Para qual email deseja enviar o relatório? (Para mais de um destinatário, separe os emails com vírgulas)").split(",");
-			
-			for(String email : emails){
-				email = email.trim();
-			}
-			
-			s.sendActivitiesEmail(this, str, emails); //TEMPORÁRIO
+			s.sendActivitiesEmail(this, str, ui.showInput("Para qual email deseja enviar o relatório? (Para mais de um destinatário, separe os emails com vírgulas)").split(" *,+ *"));
 		}
 		
 		return str;
@@ -186,7 +180,7 @@ public class User{
 				if(e.getEndTime() != null && e.getEndTime().before(new Date()))
 					break eventsLoop;
 
-				if(e.getStartTime().before(new Date()))
+				if(e.getStartTime().after(new Date()))
 					ev.add(e);
 			}
 

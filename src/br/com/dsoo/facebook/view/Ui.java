@@ -99,7 +99,7 @@ public class Ui{
 				str += "------------------------------------";
 		}
 		
-		return str.substring(0, str.length() - 1);
+		return str.substring(0, str.length() - 2);
 	}
 
 	/**

@@ -21,11 +21,16 @@ public class Utils{
 		String[] timeStamp = date.toString().split(" ");
 		String[] time = timeStamp[3].split(":");
 		
+		String hour = time[0];
+		String minute = time[1];
 		String weekDay = translate(timeStamp[0]);
 		String month = translate(timeStamp[1]);
 		
+		if(Integer.parseInt(minute) < 10){
+			minute = "0" + minute;
+		}
 		
-		return weekDay + ", " + timeStamp[2] + " de " + month + " de " + timeStamp[5] + ", às " + time[0] + ":" + time[1];
+		return weekDay + ", " + timeStamp[2] + " de " + month + " de " + timeStamp[5] + ", às " + hour + ":" + minute;
 	}
 	
 	/**
