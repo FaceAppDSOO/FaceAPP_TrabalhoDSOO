@@ -159,7 +159,7 @@ public class User{
 		String str = "Atividade de " + name.split(" ")[0] + " dos últimos " + diff + " dias:\n\n"
 				+ statuses + " novas atualizações de Status\n"
 				+ likes + " novas páginas curtidas\n";
-		
+
 		if(ui.showInput("Você deseja enviar esse relatório por email?").charAt(0) == Character.toLowerCase('s')){
 			s.sendActivitiesEmail(this, str, ui.showInput("Para qual email deseja enviar o relatório? (Para mais de um destinatário, separe os emails com vírgulas)").split(" *,+ *"));
 		}
