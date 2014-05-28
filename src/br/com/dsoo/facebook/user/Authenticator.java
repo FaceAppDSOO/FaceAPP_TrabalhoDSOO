@@ -8,6 +8,7 @@ import java.net.URL;
 
 import br.com.dsoo.facebook.logic.constants.AppData;
 import br.com.dsoo.facebook.logic.exceptions.AuthenticationFailedException;
+import br.com.dsoo.facebook.view.Alert;
 import br.com.dsoo.facebook.view.Ui;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -33,12 +34,8 @@ public class Authenticator{
 	private Facebook facebook;
 	private AccessToken token;
 	
-	private Ui ui;
-
 	
 	public Authenticator(){
-		ui = new Ui();
-		
 		cb = new ConfigurationBuilder();
 
 		cb.setDebugEnabled(true)
@@ -60,7 +57,7 @@ public class Authenticator{
 		facebook = ff.getInstance();
 		
 		// Usuário real com autenticação
-		token = facebook.getOAuthAccessToken(ui.showAuthenticationMessage(facebook));
+		token = facebook.getOAuthAccessToken(Alert.showAuthenticationMessage(facebook));
 		// Para usar um Usuário de teste, descomente a linha abaixo e comente a acima
 		//token = new AccessToken(testUsers[(int)(((Math.random() * 100) + 1) / 25)].getToken());
 		
@@ -106,14 +103,14 @@ public class Authenticator{
 
 			return facebook.getOAuthAccessToken(stringBuilder.toString());
 		}catch (Exception e){
-			ui.show(e.getMessage());
+			Alert.showError(e);
 			return null;
 		}finally{
 			if (reader != null){
 				try{
 					reader.close();
 				}catch (IOException ioe){
-					ui.show(ioe.getMessage());
+					Alert.showError(ioe);
 				}
 			}
 		}

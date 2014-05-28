@@ -44,20 +44,20 @@ public class Ui{
 		do{
 			try{
 				option = showInput("--------------- Bem vindo! ---------------\n",
-						"[1] - Ver informações do usuário",
-						"[2] - Postar atualização de Status",
+						"[1] - Ver informaï¿½ï¿½es do usuï¿½rio",
+						"[2] - Postar atualizaï¿½ï¿½o de Status",
 						"[3] - Obter resumo de atividades",
-						"[4] - Ver árvore genealógica",
+						"[4] - Ver ï¿½rvore genealï¿½gica",
 						"[5] - Ver agenda",
 						"[0] - Sair").charAt(0);
 
 				switch(option){
 					case SEE_USER_DATA:
-						show("Informações do usuário:", user.toString());
+						show("Informaï¿½ï¿½es do usuï¿½rio:", user.toString());
 						break;
 						
 					case POST_STATUS_MESSAGE:
-						show("Postagem feita com sucesso!", "ID: " + user.postStatusMessage(showInput("No que você está pensando?")));
+						show("Postagem feita com sucesso!", "ID: " + user.postStatusMessage(showInput("No que vocï¿½ estï¿½ pensando?")));
 						break;
 
 					case OBTAIN_ACTIVITIES_REPORT:
@@ -65,7 +65,7 @@ public class Ui{
 						break;
 						
 					case SEE_FAMILY_TREE:
-						show("Árvore genealógica:", formatFamily(user.getFamilyTree()));
+						show("ï¿½rvore genealï¿½gica:", formatFamily(user.getFamilyTree()));
 						break;
 						
 					case USER_AGENDA:
@@ -105,7 +105,7 @@ public class Ui{
 	/**
 	 * 
 	 * @param
-	 * @return String formatada com a família
+	 * @return String formatada com a famï¿½lia
 	 */
 	public String formatFamily(HashMap<br.com.dsoo.facebook.logic.constants.Family, ArrayList<Family>> f){
 		br.com.dsoo.facebook.logic.constants.Family[] keySet = {
@@ -115,7 +115,8 @@ public class Ui{
 				br.com.dsoo.facebook.logic.constants.Family.BROTHERS_AND_SISTERS,
 				br.com.dsoo.facebook.logic.constants.Family.COUSINS,
 				br.com.dsoo.facebook.logic.constants.Family.SONS,
-				br.com.dsoo.facebook.logic.constants.Family.GRANDSONS
+				br.com.dsoo.facebook.logic.constants.Family.GRANDSONS,
+                                br.com.dsoo.facebook.logic.constants.Family.UNDEFINED
 		};
 
 		String str = "";
@@ -125,13 +126,13 @@ public class Ui{
 				continue;
 
 			if(key == br.com.dsoo.facebook.logic.constants.Family.GRANDPARENT){
-				str += "Avós: ";
+				str += "Avï¿½s: ";
 			}else if(key == br.com.dsoo.facebook.logic.constants.Family.PARENTS){
 				str += "Pais: ";
 			}else if(key == br.com.dsoo.facebook.logic.constants.Family.UNCLES){
 				str += "Tios: ";
 			}else if(key == br.com.dsoo.facebook.logic.constants.Family.BROTHERS_AND_SISTERS){
-				str += "Irmãos(ãs): ";
+				str += "Irmï¿½os(ï¿½s): ";
 			}else if(key == br.com.dsoo.facebook.logic.constants.Family.COUSINS){
 				str += "Primos(as): ";
 			}else if(key == br.com.dsoo.facebook.logic.constants.Family.SONS){
@@ -169,7 +170,7 @@ public class Ui{
 	/**
 	 * Exibe a mensagem solicitada
 	 * @param msg
-	 * @return Dado inserido pelo usuário
+	 * @return Dado inserido pelo usuï¿½rio
 	 */
 	public String showInput(String ... msg){
 		show(msg);
@@ -178,14 +179,14 @@ public class Ui{
 	}
 
 	/**
-	 * Solicita o código de autenticação
+	 * Solicita o cï¿½digo de autenticaï¿½ï¿½o
 	 * @param facebook
-	 * @return Código de autenticação
+	 * @return Cï¿½digo de autenticaï¿½ï¿½o
 	 */
 	public String showAuthenticationMessage(Facebook facebook){
 		selection = new StringSelection(facebook.getOAuthAuthorizationURL(AppData.AUTH_URL.getValue()));
 		clipboard.setContents(selection, selection);
 		
-		return showInput("O link de autenticação foi colado na sua\nárea de transferência. Cole no seu\nnavegador e copie o código de resposta:");
+		return showInput("O link de autenticaï¿½ï¿½o foi colado na sua\nï¿½rea de transferï¿½ncia. Cole no seu\nnavegador e copie o cï¿½digo de resposta:");
 	}
 }

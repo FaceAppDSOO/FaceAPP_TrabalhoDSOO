@@ -31,14 +31,11 @@ public class User{
 	private String name;
 	private Services s;
 	
-	private Ui ui;
-	
 	private Facebook fb;
 	private ResponseList<Friend> friends;
 	private ResponseList<Family> family;
 
-	public User(Facebook f, Ui ui) throws FacebookException, IOException{
-		this.ui = ui;
+	public User(Facebook f) throws FacebookException, IOException{
 		fb = f;
 		friends = fb.getFriends();
 		family = fb.getFamily();
@@ -89,6 +86,7 @@ public class User{
 		map.put(br.com.dsoo.facebook.logic.constants.Family.COUSINS, cousins);
 		map.put(br.com.dsoo.facebook.logic.constants.Family.SONS, sons);
 		map.put(br.com.dsoo.facebook.logic.constants.Family.GRANDSONS, grandsons);
+                map.put(br.com.dsoo.facebook.logic.constants.Family.UNDEFINED, undefined);
 		
 		return map;
 	}
@@ -160,9 +158,9 @@ public class User{
 				+ statuses + " novas atualizações de Status\n"
 				+ likes + " novas páginas curtidas\n";
 
-		if(ui.showInput("Você deseja enviar esse relatório por email?").charAt(0) == Character.toLowerCase('s')){
-			s.sendActivitiesEmail(this, str, ui.showInput("Para qual email deseja enviar o relatório? (Para mais de um destinatário, separe os emails com vírgulas)").split(" *,+ *"));
-		}
+//		if(ui.showInput("Vocï¿½ deseja enviar esse relatï¿½rio por email?").charAt(0) == Character.toLowerCase('s')){
+//			s.sendActivitiesEmail(this, str, ui.showInput("Para qual email deseja enviar o relatï¿½rio? (Para mais de um destinatï¿½rio, separe os emails com vï¿½rgulas)").split(" *,+ *"));
+//		}
 		
 		return str;
 	}
@@ -228,8 +226,8 @@ public class User{
 	 * 
 	 * @return Amigos do usuário
 	 */
-	public Object[] getFriends(){
-		return friends.toArray();
+	public ResponseList<Friend> getFriends(){
+		return friends;
 	}
 
 	/**

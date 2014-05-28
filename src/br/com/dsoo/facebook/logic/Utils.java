@@ -2,8 +2,10 @@ package br.com.dsoo.facebook.logic;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
+import facebook4j.Event;
 import br.com.dsoo.facebook.logic.constants.Months;
 import br.com.dsoo.facebook.logic.constants.Time;
 import br.com.dsoo.facebook.logic.constants.WeekDays;
@@ -31,6 +33,24 @@ public class Utils{
 		}
 		
 		return weekDay + ", " + timeStamp[2] + " de " + month + " de " + timeStamp[5] + ", às " + hour + ":" + minute;
+	}
+	
+	/**
+	 * 
+	 * @param events
+	 * @return String formatada com os eventos
+	 */
+	public static String formatEvents(ArrayList<Event> events){
+		String str = "";
+		
+		for(int i = 0; i < events.size(); i++){
+			str += events.get(i).getName() + ": " + Utils.dateToString(events.get(i).getStartTime()) + "\n";
+			
+			if(i > 0 && i < events.size() - 1)
+				str += "------------------------------------";
+		}
+		
+		return str.substring(0, str.length() - 2);
 	}
 	
 	/**

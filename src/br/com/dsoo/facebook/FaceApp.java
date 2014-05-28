@@ -1,44 +1,55 @@
 package br.com.dsoo.facebook;
 
 import java.io.IOException;
-import java.text.ParseException;
-
-import javax.mail.MessagingException;
 
 import br.com.dsoo.facebook.logic.exceptions.AuthenticationFailedException;
 import br.com.dsoo.facebook.user.Authenticator;
 import br.com.dsoo.facebook.user.User;
-import br.com.dsoo.facebook.view.Ui;
+import br.com.dsoo.facebook.view.Alert;
+import br.com.dsoo.facebook.view.FaceAppFrame;
 import facebook4j.FacebookException;
 
 public class FaceApp {
 
 	public static void main(String[] args){
 
-		Ui ui = new Ui();
-		Authenticator auth = new Authenticator();
-
 		User user = null;
-		do{
-			try{
-				user = new User(auth.authenticate(), ui);
-			}catch(FacebookException e1){
-				e1.printStackTrace();
-			}catch(AuthenticationFailedException e){
-				ui.show(e.getMessage());
-			}catch(IOException e){
-				ui.show(e.getMessage());
-			}
-		}while(!user.isAuthenticated());
+		
+		Authenticator auth = new Authenticator();
+		FaceAppFrame frame = null;
 		
 		try{
-			ui.showOptions(user);
-		}catch(IllegalStateException | FacebookException | ParseException | MessagingException | IOException e){
-			ui.show(e.getMessage());
-		}finally{
-			user.logout();
-			System.exit(0);
+			frame = new FaceAppFrame(user = new User(auth.authenticate()));
+		}catch(AuthenticationFailedException | FacebookException | IOException e){
+			Alert.showError(e);
+			if(user != null){
+				user.logout();
+				user = null;
+			}
 		}
+		
+//		Ui ui = new Ui();
+//
+//		do{
+//			try{
+//				user = new User(auth.authenticate());
+//			}catch(FacebookException e1){
+//				e1.printStackTrace();
+//			}catch(AuthenticationFailedException e){
+//				ui.show(e.getMessage());
+//			}catch(IOException e){
+//				ui.show(e.getMessage());
+//			}
+//		}while(!user.isAuthenticated());
+//		
+//		try{
+//			ui.showOptions(user);
+//		}catch(IllegalStateException | FacebookException | ParseException | MessagingException | IOException e){
+//			ui.show(e.getMessage());
+//		}finally{
+//			user.logout();
+//			System.exit(0);
+//		}
 		
 	}
 
