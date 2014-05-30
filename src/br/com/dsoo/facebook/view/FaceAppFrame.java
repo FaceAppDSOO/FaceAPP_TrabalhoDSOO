@@ -2,23 +2,19 @@ package br.com.dsoo.facebook.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-import facebook4j.FacebookException;
 import br.com.dsoo.facebook.user.User;
+import facebook4j.FacebookException;
 
-public class FaceAppFrame extends JFrame implements ActionListener, WindowListener{
+public class FaceAppFrame extends JFrame implements ActionListener{
 
 	private static final long serialVersionUID = 1L;
 
-	private MainPanel mainPanel;
-	
 	private JMenuItem faceItem, quitItem, settingsItem;
 	
 	private User user;
@@ -46,29 +42,35 @@ public class FaceAppFrame extends JFrame implements ActionListener, WindowListen
 		bar.add(userMenu = new JMenu("Configurações"));
 		
 		faceMenu.add(faceItem = new JMenuItem("Facebook"));
+		faceItem.addActionListener(this);
 		faceMenu.addSeparator();
 		faceMenu.add(quitItem = new JMenuItem("Sair"));
+		quitItem.addActionListener(this);
 		userMenu.add(settingsItem = new JMenuItem("Configurações da aplicação"));
+		settingsItem.addActionListener(this);
 		
-		setContentPane(mainPanel = new MainPanel(user));
+		setContentPane(new MainPanel(user));
+	}
+	
+	public void setData(User user){
+		this.user = user;
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e){
-		// TODO Auto-generated method stub
-		
+		try{
+			if(e.getSource() == quitItem){
+				if(Alert.showYesNo(this, "Sair", "Deseja mesmo sair?")){
+					user.logout();
+					System.exit(DO_NOTHING_ON_CLOSE);
+				}
+			}else if(e.getSource() == faceItem){
+				getContentPane().setVisible(false);
+				setContentPane(new MainPanel(user));
+			}
+		}catch(FacebookException e1){
+			Alert.showError(e1);
+		}
 	}
-
-	@Override
-	public void windowClosed(WindowEvent e){
-		user.logout();
-	}
-
-	@Override public void windowActivated(WindowEvent arg0){}
-	@Override public void windowClosing(WindowEvent arg0){}
-	@Override public void windowDeactivated(WindowEvent arg0){}
-	@Override public void windowDeiconified(WindowEvent arg0){}
-	@Override public void windowIconified(WindowEvent arg0){}
-	@Override public void windowOpened(WindowEvent arg0){}
 
 }

@@ -27,17 +27,18 @@ public class MainPanel extends JPanelCustom implements MouseListener{
 
 	private JLabel userLabel, activityReportLabel, agendaLabel;
 	
+	
 	public MainPanel(User user) throws FacebookException{
 		super(user);
 		setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		
-		userLabel = new JLabel("username");
+		userLabel = new JLabel(user.getFirstName());
 		userLabel.addMouseListener(this);
-		userLabel.setFont(new Font("Tahoma", Font.BOLD, 11));
+		userLabel.setFont(new Font("Tahoma", Font.BOLD, 17));
 		activityReportLabel = new JLabel("Resumo de atividades");
-		userLabel.addMouseListener(this);
+		activityReportLabel.addMouseListener(this);
 		agendaLabel = new JLabel("Agenda");
-		userLabel.addMouseListener(this);
+		agendaLabel.addMouseListener(this);
 		
 		JPanel panel = new JPanel();
 		panel.setForeground(Color.GRAY);
@@ -56,67 +57,50 @@ public class MainPanel extends JPanelCustom implements MouseListener{
 		);
 		
 		JSeparator separator = new JSeparator();
+		
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
+				.addComponent(separator, GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
 				.addGroup(gl_panel.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-						.addComponent(separator, GroupLayout.PREFERRED_SIZE, 137, Short.MAX_VALUE)
-						.addComponent(userLabel)
-						.addComponent(activityReportLabel)
-						.addComponent(agendaLabel))
-					.addContainerGap())
+					.addComponent(userLabel)
+					.addContainerGap(49, Short.MAX_VALUE))
+				.addGroup(gl_panel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(activityReportLabel)
+					.addContainerGap(44, Short.MAX_VALUE))
+				.addGroup(gl_panel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(agendaLabel)
+					.addContainerGap(112, Short.MAX_VALUE))
 		);
 		gl_panel.setVerticalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel.createSequentialGroup()
-					.addGap(40)
+					.addGap(59)
 					.addComponent(userLabel)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(activityReportLabel)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(separator, GroupLayout.PREFERRED_SIZE, 2, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(activityReportLabel)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(agendaLabel)
-					.addContainerGap(176, Short.MAX_VALUE))
+					.addContainerGap(164, Short.MAX_VALUE))
 		);
 		panel.setLayout(gl_panel);
 		setLayout(groupLayout);
 	}
-	
-	@Override
-	void setForm(){
-		
-	}
 
 	@Override
 	public void actionPerformed(ActionEvent e){
-		// TODO Auto-generated method stub
-		
 	}
 
-	private Font oldLabelFont;
-	@Override
-	public void mouseEntered(MouseEvent e){
-		if(!(e.getSource() instanceof JLabel))
-			return;
-
-		oldLabelFont = ((JLabel)e.getSource()).getFont();
-		((JLabel)e.getSource()).setFont(new Font(oldLabelFont.getName(), Font.BOLD, oldLabelFont.getSize()));
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e){
-		if(!(e.getSource() instanceof JLabel))
-			return;
-
-		((JLabel)e.getSource()).setFont(oldLabelFont);
-	}
+	@Override public void mouseEntered(MouseEvent e){}
+	@Override public void mouseExited(MouseEvent e){}
 	
 	@Override
 	public void mouseClicked(MouseEvent e){
-		toggleLoading();
 		try{
 			if(e.getSource() == userLabel){
 				Alert.show(this, "Dados do usuário", user.toString());
@@ -127,8 +111,6 @@ public class MainPanel extends JPanelCustom implements MouseListener{
 			}
 		}catch(FacebookException | ParseException | MessagingException | IOException e1){
 			Alert.showError(e1);
-		}finally{
-			toggleLoading();
 		}
 	}
 

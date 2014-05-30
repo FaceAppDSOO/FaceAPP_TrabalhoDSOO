@@ -13,7 +13,6 @@ import br.com.dsoo.facebook.logic.Services;
 import br.com.dsoo.facebook.logic.Utils;
 import br.com.dsoo.facebook.logic.constants.Time;
 import br.com.dsoo.facebook.logic.exceptions.TypeMismatchException;
-import br.com.dsoo.facebook.view.Ui;
 import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -158,9 +157,7 @@ public class User{
 				+ statuses + " novas atualizações de Status\n"
 				+ likes + " novas páginas curtidas\n";
 
-//		if(ui.showInput("Vocï¿½ deseja enviar esse relatï¿½rio por email?").charAt(0) == Character.toLowerCase('s')){
-//			s.sendActivitiesEmail(this, str, ui.showInput("Para qual email deseja enviar o relatï¿½rio? (Para mais de um destinatï¿½rio, separe os emails com vï¿½rgulas)").split(" *,+ *"));
-//		}
+		//ENVIAR EMAIL
 		
 		return str;
 	}

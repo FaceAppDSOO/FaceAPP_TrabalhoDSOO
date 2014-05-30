@@ -21,17 +21,12 @@ public class Alert extends JOptionPane{
 	private static Clipboard clipboard;
 	private static StringSelection selection;
 
-	public static String showInput(String title, String msg){
-		return showInput(null, title, msg);
+	public static boolean showYesNo(Component parent, String title, String msg){
+		return showConfirm(parent, title, msg, YES_OPTION, YES_OPTION, QUESTION_MESSAGE, "Sim", "Não");
 	}
-	
+
 	public static String showInput(Component parent, String title, String msg){
 		return showInput(parent, title, msg, INFORMATION_MESSAGE);
-	}
-	
-	
-	public static void show(String title, String msg){
-		show(null, title, msg, INFORMATION_MESSAGE);
 	}
 	
 	public static void show(Component parent, String title, String msg){
@@ -50,14 +45,18 @@ public class Alert extends JOptionPane{
 		selection = new StringSelection(facebook.getOAuthAuthorizationURL(AppData.AUTH_URL.getValue()));
 		clipboard.setContents(selection, selection);
 		
-		return showInput("Autenticação", "O link de autenticação foi colado na sua área de transferência.\nCole no seu navegador e copie o código de resposta:");
-	}
-
-	public static String showInput(Component parent, String title, String msg, int type){
-		return showInputDialog(parent, msg, title, type);
+		return showInput(null, "Autenticação", "O link de autenticação foi colado na sua área de transferência.\nCole no seu navegador e copie o código de resposta:");
 	}
 	
-	public static void show(Component parent, String title, String msg, int type){
-		showMessageDialog(parent, msg, title, type);
+	public static boolean showConfirm(Component parent, String title, String msg, int flags, int yes, int icon, String ...options){
+		return showOptionDialog(parent, msg, title, flags, icon, null, options, options[options.length - 1]) == yes;
+	}
+
+	public static String showInput(Component parent, String title, String msg, int icon){
+		return showInputDialog(parent, msg, title, icon);
+	}
+	
+	public static void show(Component parent, String title, String msg, int icon){
+		showMessageDialog(parent, msg, title, icon);
 	}
 }

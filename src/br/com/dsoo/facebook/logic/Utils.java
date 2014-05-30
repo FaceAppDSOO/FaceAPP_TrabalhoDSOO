@@ -28,10 +28,6 @@ public class Utils{
 		String weekDay = translate(timeStamp[0]);
 		String month = translate(timeStamp[1]);
 		
-		if(Integer.parseInt(minute) < 10){
-			minute = "0" + minute;
-		}
-		
 		return weekDay + ", " + timeStamp[2] + " de " + month + " de " + timeStamp[5] + ", às " + hour + ":" + minute;
 	}
 	
@@ -45,12 +41,9 @@ public class Utils{
 		
 		for(int i = 0; i < events.size(); i++){
 			str += events.get(i).getName() + ": " + Utils.dateToString(events.get(i).getStartTime()) + "\n";
-			
-			if(i > 0 && i < events.size() - 1)
-				str += "------------------------------------";
 		}
 		
-		return str.substring(0, str.length() - 2);
+		return str.substring(0, str.length() - 1);
 	}
 	
 	/**
