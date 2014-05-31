@@ -37,6 +37,9 @@ public class Utils{
 	 * @return String formatada com os eventos
 	 */
 	public static String formatEvents(ArrayList<Event> events){
+		if(events == null || events.size() == 0)
+			return "Nenhum evento encontrado!";
+		
 		String str = "";
 		
 		for(int i = 0; i < events.size(); i++){

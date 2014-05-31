@@ -1,16 +1,15 @@
 package br.com.dsoo.facebook.view;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.text.ParseException;
 
 import javax.mail.MessagingException;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -21,20 +20,19 @@ import br.com.dsoo.facebook.logic.Utils;
 import br.com.dsoo.facebook.user.User;
 import facebook4j.FacebookException;
 
-public class MainPanel extends JPanelCustom implements MouseListener{
+public class MainPanel extends JPanelCustom{
 
 	private static final long serialVersionUID = 1L;
 
-	private JLabel userLabel, activityReportLabel, agendaLabel;
+	private JLabel userName, activityReportLabel, agendaLabel;
 	
 	
 	public MainPanel(User user) throws FacebookException{
 		super(user);
 		setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		
-		userLabel = new JLabel(user.getFirstName());
-		userLabel.addMouseListener(this);
-		userLabel.setFont(new Font("Tahoma", Font.BOLD, 17));
+		userName = new JLabel(user.getFirstName());
+		userName.addMouseListener(this);
 		activityReportLabel = new JLabel("Resumo de atividades");
 		activityReportLabel.addMouseListener(this);
 		agendaLabel = new JLabel("Agenda");
@@ -43,6 +41,10 @@ public class MainPanel extends JPanelCustom implements MouseListener{
 		JPanel panel = new JPanel();
 		panel.setForeground(Color.GRAY);
 		panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		
+		JSeparator separator = new JSeparator();
+		
+		JLabel userPic = new JLabel(new ImageIcon(user.getUserPic()));
 		
 		GroupLayout groupLayout = new GroupLayout(this);
 		groupLayout.setHorizontalGroup(
@@ -56,16 +58,10 @@ public class MainPanel extends JPanelCustom implements MouseListener{
 				.addComponent(panel, GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
 		);
 		
-		JSeparator separator = new JSeparator();
-		
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addComponent(separator, GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
-				.addGroup(gl_panel.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(userLabel)
-					.addContainerGap(49, Short.MAX_VALUE))
 				.addGroup(gl_panel.createSequentialGroup()
 					.addContainerGap()
 					.addComponent(activityReportLabel)
@@ -74,19 +70,29 @@ public class MainPanel extends JPanelCustom implements MouseListener{
 					.addContainerGap()
 					.addComponent(agendaLabel)
 					.addContainerGap(112, Short.MAX_VALUE))
+				.addGroup(gl_panel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(userName)
+					.addContainerGap(94, Short.MAX_VALUE))
+				.addGroup(gl_panel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(userPic)
+					.addContainerGap(129, Short.MAX_VALUE))
 		);
 		gl_panel.setVerticalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel.createSequentialGroup()
-					.addGap(59)
-					.addComponent(userLabel)
+					.addContainerGap()
+					.addComponent(userPic)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(userName)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(separator, GroupLayout.PREFERRED_SIZE, 2, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(activityReportLabel)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(agendaLabel)
-					.addContainerGap(164, Short.MAX_VALUE))
+					.addContainerGap(213, Short.MAX_VALUE))
 		);
 		panel.setLayout(gl_panel);
 		setLayout(groupLayout);
@@ -96,25 +102,27 @@ public class MainPanel extends JPanelCustom implements MouseListener{
 	public void actionPerformed(ActionEvent e){
 	}
 
-	@Override public void mouseEntered(MouseEvent e){}
-	@Override public void mouseExited(MouseEvent e){}
-	
 	@Override
 	public void mouseClicked(MouseEvent e){
+		showLoading();
 		try{
-			if(e.getSource() == userLabel){
-				Alert.show(this, "Dados do usuário", user.toString());
-			}else if(e.getSource() == activityReportLabel){			
-				Alert.show(this, "Resumo de Atividades", user.getActivitiesReport());
-			}else if(e.getSource() == agendaLabel){
-				Alert.show(this, "Agenda", Utils.formatEvents(user.getUserAgenda()));
+			String data = null, title = null;
+			
+			if(e.getSource() == userName){
+				title = "Dados do usuário";
+				data = user.toString();
+			}else if(e.getSource() == activityReportLabel){
+				title = "Resumo de Atividades";
+				data = user.getActivitiesReport();
+			}else{
+				title = "Agenda";
+				data = Utils.formatEvents(user.getUserAgenda());
 			}
+			
+			hideLoading();
+			Alert.show(this, title, data);
 		}catch(FacebookException | ParseException | MessagingException | IOException e1){
 			Alert.showError(e1);
 		}
 	}
-
-
-	@Override public void mouseReleased(MouseEvent e){}
-	@Override public void mousePressed(MouseEvent e){}
 }

@@ -1,6 +1,7 @@
 package br.com.dsoo.facebook.user;
 
 import java.io.IOException;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,15 +12,16 @@ import javax.mail.internet.AddressException;
 
 import br.com.dsoo.facebook.logic.Services;
 import br.com.dsoo.facebook.logic.Utils;
+import br.com.dsoo.facebook.logic.constants.Family;
 import br.com.dsoo.facebook.logic.constants.Time;
 import br.com.dsoo.facebook.logic.exceptions.TypeMismatchException;
 import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
-import facebook4j.Family;
 import facebook4j.Friend;
 import facebook4j.Like;
 import facebook4j.Paging;
+import facebook4j.PictureSize;
 import facebook4j.Post;
 import facebook4j.Reading;
 import facebook4j.ResponseList;
@@ -32,7 +34,7 @@ public class User{
 	
 	private Facebook fb;
 	private ResponseList<Friend> friends;
-	private ResponseList<Family> family;
+	private ResponseList<facebook4j.Family> family;
 
 	public User(Facebook f) throws FacebookException, IOException{
 		fb = f;
@@ -46,48 +48,57 @@ public class User{
 	 * 
 	 * @return Família do usuário
 	 */
-	public HashMap<br.com.dsoo.facebook.logic.constants.Family, ArrayList<Family>> getFamilyTree(){
-		HashMap<br.com.dsoo.facebook.logic.constants.Family, ArrayList<Family>> map = new HashMap<>();
+	public HashMap<Family, ArrayList<facebook4j.Family>> getFamilyTree(){
+		HashMap<Family, ArrayList<facebook4j.Family>> map = new HashMap<>();
 		
-		ArrayList<Family> gParents = new ArrayList<>();
-		ArrayList<Family> parents = new ArrayList<>();
-		ArrayList<Family> uncles = new ArrayList<>();
-		ArrayList<Family> brothers = new ArrayList<>();
-		ArrayList<Family> cousins = new ArrayList<>();
-		ArrayList<Family> sons = new ArrayList<>();
-		ArrayList<Family> grandsons = new ArrayList<>();
-		ArrayList<Family> undefined = new ArrayList<>();
+		ArrayList<facebook4j.Family> gParents = new ArrayList<>();
+		ArrayList<facebook4j.Family> parents = new ArrayList<>();
+		ArrayList<facebook4j.Family> uncles = new ArrayList<>();
+		ArrayList<facebook4j.Family> brothers = new ArrayList<>();
+		ArrayList<facebook4j.Family> cousins = new ArrayList<>();
+		ArrayList<facebook4j.Family> sons = new ArrayList<>();
+		ArrayList<facebook4j.Family> grandsons = new ArrayList<>();
+		ArrayList<facebook4j.Family> undefined = new ArrayList<>();
 		
-		for(Family p : family){
-			if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.GRANDPARENT.getValue())){
+		for(facebook4j.Family p : family){
+			if(p.getRelationship().matches(Family.GRANDPARENT.getValue())){
 				gParents.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.PARENTS.getValue())){
+			}else if(p.getRelationship().matches(Family.PARENTS.getValue())){
 				parents.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.UNCLES.getValue())){
+			}else if(p.getRelationship().matches(Family.UNCLES.getValue())){
 				uncles.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.BROTHERS_AND_SISTERS.getValue())){
+			}else if(p.getRelationship().matches(Family.BROTHERS_AND_SISTERS.getValue())){
 				brothers.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.COUSINS.getValue())){
+			}else if(p.getRelationship().matches(Family.COUSINS.getValue())){
 				cousins.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.SONS.getValue())){
+			}else if(p.getRelationship().matches(Family.SONS.getValue())){
 				sons.add(p);
-			}else if(p.getRelationship().matches(br.com.dsoo.facebook.logic.constants.Family.GRANDSONS.getValue())){
+			}else if(p.getRelationship().matches(Family.GRANDSONS.getValue())){
 				grandsons.add(p);
 			}else{
 				undefined.add(p);
 			}
 		}
 		
-		map.put(br.com.dsoo.facebook.logic.constants.Family.GRANDPARENT, gParents);
-		map.put(br.com.dsoo.facebook.logic.constants.Family.PARENTS, parents);
-		map.put(br.com.dsoo.facebook.logic.constants.Family.UNCLES, uncles);
-		map.put(br.com.dsoo.facebook.logic.constants.Family.BROTHERS_AND_SISTERS, brothers);
-		map.put(br.com.dsoo.facebook.logic.constants.Family.COUSINS, cousins);
-		map.put(br.com.dsoo.facebook.logic.constants.Family.SONS, sons);
-		map.put(br.com.dsoo.facebook.logic.constants.Family.GRANDSONS, grandsons);
-                map.put(br.com.dsoo.facebook.logic.constants.Family.UNDEFINED, undefined);
+		map.put(Family.GRANDPARENT, gParents);
+		map.put(Family.PARENTS, parents);
+		map.put(Family.UNCLES, uncles);
+		map.put(Family.BROTHERS_AND_SISTERS, brothers);
+		map.put(Family.COUSINS, cousins);
+		map.put(Family.SONS, sons);
+		map.put(Family.GRANDSONS, grandsons);
+                map.put(Family.UNDEFINED, undefined);
 		
 		return map;
+	}
+	
+	/**
+	 * 
+	 * @return URL com a imagem do perfil do usuário
+	 * @throws FacebookException
+	 */
+	public URL getUserPic() throws FacebookException{
+		return fb.getPictureURL(PictureSize.normal);
 	}
 
 	/**

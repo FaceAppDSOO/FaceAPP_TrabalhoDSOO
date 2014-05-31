@@ -18,15 +18,18 @@ public class FaceApp {
 		Authenticator auth = new Authenticator();
 		FaceAppFrame frame = null;
 		
-		try{
-			frame = new FaceAppFrame(user = new User(auth.authenticate()));
-		}catch(AuthenticationFailedException | FacebookException | IOException e){
-			Alert.showError(e);
-			if(user != null){
-				user.logout();
-				user = null;
+		boolean retry = false;
+		
+		do{
+			try{
+				frame = new FaceAppFrame(user = new User(auth.authenticate()));
+			}catch(FacebookException | IOException e){
+				Alert.showError(e);
+				retry = true;
+			}catch(AuthenticationFailedException e){
+				Alert.showError(e);
 			}
-		}
+		}while(retry || user == null || !user.isAuthenticated());
 		
 //		Ui ui = new Ui();
 //

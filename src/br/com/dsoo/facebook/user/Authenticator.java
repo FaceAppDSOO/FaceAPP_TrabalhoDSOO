@@ -6,6 +6,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import br.com.dsoo.facebook.logic.constants.AppData;
 import br.com.dsoo.facebook.logic.exceptions.AuthenticationFailedException;
 import br.com.dsoo.facebook.view.Alert;
@@ -21,20 +26,20 @@ import facebook4j.conf.ConfigurationBuilder;
 public class Authenticator{
 
 	private TestUsers[] testUsers = {
-		TestUsers.JOAO_DA_SILVA_SAURO,
-		TestUsers.JERICO_SANTOS_PADILHA,
-		TestUsers.LUIS_PRISCILLO_CAMPOS,
-		TestUsers.RODOLFO_MARTINS,
-		TestUsers.GERALDO_DE_SOUZA
+			TestUsers.JOAO_DA_SILVA_SAURO,
+			TestUsers.JERICO_SANTOS_PADILHA,
+			TestUsers.LUIS_PRISCILLO_CAMPOS,
+			TestUsers.RODOLFO_MARTINS,
+			TestUsers.GERALDO_DE_SOUZA
 	};
-	
+
 	private ConfigurationBuilder cb;
 	private Configuration conf;
 	private FacebookFactory ff;
 	private Facebook facebook;
 	private AccessToken token;
-	
-	
+
+
 	public Authenticator(){
 		cb = new ConfigurationBuilder();
 
@@ -45,7 +50,7 @@ public class Authenticator{
 
 		conf = cb.build();
 	}
-	
+
 	/**
 	 * Autentica o usuário.
 	 * @return Objeto Facebook
@@ -55,23 +60,23 @@ public class Authenticator{
 	public Facebook authenticate() throws FacebookException, AuthenticationFailedException{
 		ff = new FacebookFactory(conf);
 		facebook = ff.getInstance();
-		
+
 		// Usuário real com autenticação
 		token = facebook.getOAuthAccessToken(Alert.showAuthenticationMessage(facebook));
 		// Para usar um Usuário de teste, descomente a linha abaixo e comente a acima
 		//token = new AccessToken(testUsers[(int)(((Math.random() * 100) + 1) / 25)].getToken());
-		
+
 		//token = this.getOAuthCredentials(facebook);
-		
+
 		facebook.setOAuthAccessToken(token);
-		
+
 		if(!facebook.getAuthorization().isEnabled()){
 			throw new AuthenticationFailedException(token);
 		}
-		
+
 		return facebook;
 	}
-	
+
 	/**
 	 * <b>EM CONSTRUÇÃO!</b><br>
 	 * Solicita e lê o código de autenticação
@@ -79,41 +84,7 @@ public class Authenticator{
 	 * @return Objeto AccessToken com os dados de autenticação
 	 */
 	private AccessToken getOAuthCredentials(Facebook facebook){
-		String authUrl = facebook.getOAuthAuthorizationURL(AppData.AUTH_URL.getValue());
-
-		URL url = null;
-		BufferedReader reader = null;
-		StringBuilder stringBuilder;
-
-		try{
-			url = new URL(authUrl);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-			connection.setRequestMethod("GET");
-			connection.setReadTimeout(15000);
-			connection.connect();
-
-			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			stringBuilder = new StringBuilder();
-
-			String line = null;
-			while ((line = reader.readLine()) != null){
-				stringBuilder.append(line + "\n");
-			}
-
-			return facebook.getOAuthAccessToken(stringBuilder.toString());
-		}catch (Exception e){
-			Alert.showError(e);
-			return null;
-		}finally{
-			if (reader != null){
-				try{
-					reader.close();
-				}catch (IOException ioe){
-					Alert.showError(ioe);
-				}
-			}
-		}
+		return null;
 	}
 
 	/**
@@ -127,7 +98,7 @@ public class Authenticator{
 		LUIS_PRISCILLO_CAMPOS("CAAHLgl4tP3YBAJHWVZA9zkppzn7MG2UaebZBZBGgih7717a9ayuiVrxnX8RPlQcDhZBSXMME2OBlBIIVANbDE6AjP7dWukZC3alaPwD9aOsILWcoLeJhqFkZAlMMuHPkLZAtzUjMCFWMZCojgu4GbKYH5g3QF5h5ZC4uZBS6C4hAejjnt3bmjHF5JdSVdISVCDwQkZD"),
 		RODOLFO_MARTINS("CAAHLgl4tP3YBAKxC7VMW0ygORygtBzZCjJdgLe7bJHcGCVRG1BWWSCG0ocO6vW8BCKaHW0ObjkwHvuinYom1E2UKOLE8zq7HYcXXCRXJ1psRG0pEe3lLfGKqRh9QLTdiakQzE8GmdTiGUmjBV1JXH9zanijB45PU9Ye7v2fjcEGLvMhkjpopLCTjLc2sZD"),
 		GERALDO_DE_SOUZA("CAAHLgl4tP3YBAPwCgNO3ptVgaQBWvhbh3WUABHdIfhw1NkXNZBxCWcFO5uGuOHovRXgIdlE4A1M9EVtZAHwWr4PML5ZBBSJs5r3ueL1WHspOHbw6SX18V44eXBBvRR81OiwOvgilCEt4XEXJJQSFm87yoSTKXRIwDHvUM4xN3VOi0PrQ4y1ZCA1z9GpTD34ZD");
-		
+
 		private String token;
 		private TestUsers(String tkn){
 			token = tkn;
@@ -136,5 +107,39 @@ public class Authenticator{
 		public String getToken(){
 			return token;
 		}
+	}
+
+	/*
+	 * Classes de comunicação com o servidor para requests
+	 */
+	class SigningServlet extends HttpServlet{
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+			Facebook facebook = new FacebookFactory().getInstance();
+			request.getSession().setAttribute("facebook", facebook);
+			StringBuffer callbackURL = request.getRequestURL();
+			int index = callbackURL.lastIndexOf("/");
+			callbackURL.replace(index, callbackURL.length(), "").append("/callback");
+			response.sendRedirect(facebook.getOAuthAuthorizationURL(callbackURL.toString()));
+		}
+	}
+	
+	class CallbackServlet extends HttpServlet{
+
+		private static final long serialVersionUID = 1L;
+		
+		@Override
+	    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	        Facebook facebook = (Facebook) request.getSession().getAttribute("facebook");
+	        String oauthCode = request.getParameter("code");
+	        try {
+	            facebook.getOAuthAccessToken(oauthCode);
+	        } catch (FacebookException e) {
+	            throw new ServletException(e);
+	        }
+	        response.sendRedirect(request.getContextPath() + "/");
+	    }
 	}
 }
