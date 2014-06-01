@@ -1,10 +1,7 @@
 package br.com.dsoo.facebook.view;
 
-import java.awt.FlowLayout;
-
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
@@ -19,10 +16,6 @@ public class LoadingDialog extends JDialog{
 		
 		final JProgressBar bar = new JProgressBar();
 		bar.setIndeterminate(true);
-		final JLabel lb = new JLabel(msg);
-		
-		p.setLayout(new FlowLayout(FlowLayout.LEADING));
-		p.add(lb);
 		p.add(bar);
 	    p.setSize(300, 75);
 	    setContentPane(p);

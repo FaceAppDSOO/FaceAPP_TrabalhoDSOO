@@ -6,7 +6,7 @@ import br.com.dsoo.facebook.logic.exceptions.AuthenticationFailedException;
 import br.com.dsoo.facebook.user.Authenticator;
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.Alert;
-import br.com.dsoo.facebook.view.FaceAppFrame;
+import br.com.dsoo.facebook.view.forms.frames.FaceAppFrame;
 import facebook4j.FacebookException;
 
 public class FaceApp {

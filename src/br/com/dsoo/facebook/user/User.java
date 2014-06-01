@@ -133,9 +133,7 @@ public class User{
 				statuses++;
 			}
 
-			statusPaging = allStatuses.getPaging();
-
-			if(statusPaging != null){
+			if((statusPaging = allStatuses.getPaging()) != null){
 				allStatuses = fb.fetchNext(statusPaging);
 				continue;
 			}
@@ -152,9 +150,7 @@ public class User{
 				likes++;
 			}
 
-			likePaging = allPageLikes.getPaging();
-
-			if(likePaging != null){
+			if((likePaging = allPageLikes.getPaging()) != null){
 				allPageLikes = fb.fetchNext(likePaging);
 				continue;
 			}
@@ -171,6 +167,14 @@ public class User{
 		//ENVIAR EMAIL
 		
 		return str;
+	}
+	
+	/**
+	 * @return Feed de notícias
+	 * @throws FacebookException
+	 */
+	public ResponseList<Post> getNewsFeed() throws FacebookException{
+		return fb.getHome();
 	}
 	
 	public ArrayList<Event> getUserAgenda() throws FacebookException, ParseException{
@@ -297,6 +301,14 @@ public class User{
 		}
 
 		return data;
+	}
+	
+	/**
+	 * 
+	 * @return Facebook
+	 */
+	public Facebook getAccount(){
+		return fb;
 	}
 
 	/**
