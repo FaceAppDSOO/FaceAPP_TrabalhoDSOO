@@ -5,6 +5,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -14,9 +16,8 @@ import javax.swing.JPanel;
 
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.LoadingDialog;
-import br.com.dsoo.facebook.view.forms.frames.FaceAppFrame;
 
-public class JPanelCustom extends JPanel implements ActionListener, MouseListener{
+public class JPanelCustom extends JPanel implements ActionListener, MouseListener, KeyListener{
 
 	private static final long serialVersionUID = 1L;
 	
@@ -26,10 +27,6 @@ public class JPanelCustom extends JPanel implements ActionListener, MouseListene
 	public JPanelCustom(User user){
 		super();
 		this.user = user;
-	}
-	
-	void setDataToFrame(){
-		((FaceAppFrame)getParent().getParent().getParent()).setData(user);
 	}
 	
 	void showLoading(){
@@ -50,6 +47,8 @@ public class JPanelCustom extends JPanel implements ActionListener, MouseListene
 			loading = null;
 		}
 	}
+	
+	void addListeners(){}
 
 	public User getUser(){
 		return user;
@@ -96,4 +95,7 @@ public class JPanelCustom extends JPanel implements ActionListener, MouseListene
 	@Override public void mousePressed(MouseEvent e){}
 	@Override public void mouseClicked(MouseEvent arg0){}
 
+	@Override public void keyPressed(KeyEvent e){}
+	@Override public void keyReleased(KeyEvent e){}
+	@Override public void keyTyped(KeyEvent e){}
 }

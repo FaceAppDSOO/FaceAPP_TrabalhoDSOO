@@ -10,7 +10,9 @@ import javax.swing.JMenuItem;
 
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.Alert;
+import br.com.dsoo.facebook.view.forms.panels.JPanelCustom;
 import br.com.dsoo.facebook.view.forms.panels.MainPanel;
+import br.com.dsoo.facebook.view.forms.panels.SettingsPanel;
 import facebook4j.FacebookException;
 
 public class FaceAppFrame extends JFrame implements ActionListener{
@@ -18,6 +20,8 @@ public class FaceAppFrame extends JFrame implements ActionListener{
 	private static final long serialVersionUID = 1L;
 
 	private JMenuItem faceItem, quitItem, settingsItem;
+	
+	private JPanelCustom mainPanel, settingsPanel;
 	
 	private User user;
 	
@@ -30,6 +34,9 @@ public class FaceAppFrame extends JFrame implements ActionListener{
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setSize(600, 400);
+		
+		setLocation(getX() - 300, getY() - 200);
+		
 		setResizable(false);
 		setVisible(true);
 	}
@@ -51,11 +58,7 @@ public class FaceAppFrame extends JFrame implements ActionListener{
 		userMenu.add(settingsItem = new JMenuItem("Configurações da aplicação"));
 		settingsItem.addActionListener(this);
 		
-		setContentPane(new MainPanel(user));
-	}
-	
-	public void setData(User user){
-		this.user = user;
+		setContentPane(mainPanel = new MainPanel(user));
 	}
 	
 	@Override
@@ -66,9 +69,18 @@ public class FaceAppFrame extends JFrame implements ActionListener{
 					user.logout();
 					System.exit(DO_NOTHING_ON_CLOSE);
 				}
-			}else if(e.getSource() == faceItem){
+			}else{
 				getContentPane().setVisible(false);
-				setContentPane(new MainPanel(user));
+				user = ((JPanelCustom)getContentPane()).getUser();
+				getContentPane().setVisible(false);
+				//TRATAR MUDANÇAS NAS CONFIGURAÇÕES
+				if(e.getSource() == faceItem){
+					setContentPane(new MainPanel(user));
+				}else if(e.getSource() == settingsItem){
+					setContentPane(new SettingsPanel(user));
+				}
+				
+				pack();
 			}
 		}catch(FacebookException e1){
 			Alert.showError(e1);

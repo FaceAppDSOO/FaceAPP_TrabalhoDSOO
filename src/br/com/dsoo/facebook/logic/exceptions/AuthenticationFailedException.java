@@ -7,11 +7,16 @@ public class AuthenticationFailedException extends RuntimeException{
 	private static final long serialVersionUID = 1L;
 	private AccessToken token;
 
+	public AuthenticationFailedException(){}
+	
 	public AuthenticationFailedException(AccessToken token){
 		this.token = token;
 	}
 
 	public String getMessage(){
-		return "Falha ao obter autorização (" + token.toString() + ")";
+		if(token != null)
+			return "Falha ao obter autorização (" + token.toString() + ")";
+		else
+			return "Login cancelado pelo usuário";
 	}
 }

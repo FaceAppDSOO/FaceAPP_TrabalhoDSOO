@@ -28,7 +28,6 @@ import br.com.dsoo.facebook.view.Alert;
 import facebook4j.Event;
 import facebook4j.FacebookException;
 import facebook4j.Post;
-import facebook4j.ResponseList;
 
 public class MainPanel extends JPanelCustom{
 
@@ -42,11 +41,13 @@ public class MainPanel extends JPanelCustom{
 	
 	public MainPanel(User user) throws FacebookException{
 		super(user);
+		showLoading();
 		setBackground(SystemColor.menu);
 		setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		
 		//labels
 		userName = new JLabel(user.getFirstName());
+		userName.setToolTipText(user.getName());
 		activityReportLabel = new JLabel("Resumo de atividades");
 		agendaLabel = new JLabel("Agenda");
 		separator = new JSeparator();
@@ -59,10 +60,6 @@ public class MainPanel extends JPanelCustom{
 		container = new JScrollPane(loadUserFeed());
 		container.setViewportBorder(null);
 		
-		btPost.addActionListener(this);
-		userName.addMouseListener(this);
-		activityReportLabel.addMouseListener(this);
-		agendaLabel.addMouseListener(this);
 		userPic = new JLabel(new ImageIcon(user.getUserPic()));
 		
 		userPanel.setAutoscrolls(true);
@@ -129,30 +126,41 @@ public class MainPanel extends JPanelCustom{
 		);
 		userPanel.setLayout(gl_userPanel);
 		setLayout(groupLayout);
+		
+		addListeners();
+		
+		hideLoading();
+	}
+	
+	@Override
+	void addListeners(){
+		btPost.addActionListener(this);
+		userName.addMouseListener(this);
+		activityReportLabel.addMouseListener(this);
+		agendaLabel.addMouseListener(this);
 	}
 
 	private ListItemPanel loadUserFeed(){
-		showLoading();
 		ListItemPanel panel = new ListItemPanel();
+		panel.setBorder(null);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
-		ResponseList<Post> userFeed;
+		Post[] userFeed;
 
 		try{
-			userFeed = user.getNewsFeed();
+			userFeed = user.getNewsFeed(20);
 		}catch(FacebookException e){
 			Alert.showError(e);
 			return null;
 		}
 		
 		for(Post post : userFeed){
-			if(post.getType().equalsIgnoreCase("status")){
+			try{
 				panel.add(new PostPanel(user.getAccount(), post));
 				panel.add(Box.createRigidArea(new Dimension(10, 10)));
-			}
+			}catch(FacebookException e){}
 		}
 		
-		hideLoading();
 		return panel;
 	}
 
@@ -160,7 +168,11 @@ public class MainPanel extends JPanelCustom{
 	public void actionPerformed(ActionEvent e){
 		if(e.getSource() == btPost){
 			try{
-				user.postStatusMessage(Alert.showInput(this, "Nova postagem", "No que você está pensando?"));
+				String post = Alert.showInput(this, "Nova postagem", "No que você está pensando?");
+				
+				if(post != null && post != ""){
+					user.postStatusMessage(post);
+				}
 			}catch(FacebookException e1){
 				Alert.showError(e1);
 			}

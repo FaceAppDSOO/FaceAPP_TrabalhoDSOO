@@ -184,7 +184,7 @@ public class Ui{
 	 * @return C�digo de autentica��o
 	 */
 	public String showAuthenticationMessage(Facebook facebook){
-		selection = new StringSelection(facebook.getOAuthAuthorizationURL(AppData.AUTH_URL.getValue()));
+		selection = new StringSelection(facebook.getOAuthAuthorizationURL(AppData.AUTH_URL.value));
 		clipboard.setContents(selection, selection);
 		
 		return showInput("O link de autentica��o foi colado na sua\n�rea de transfer�ncia. Cole no seu\nnavegador e copie o c�digo de resposta:");

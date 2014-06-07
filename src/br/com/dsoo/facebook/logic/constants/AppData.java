@@ -10,12 +10,8 @@ public enum AppData{
 	APP_EMAIL_LOGIN("faceapp.dsoo"),
 	APP_EMAIL_PASS("trabalhodsoo");
 
-	private String value;
+	public final String value;
 	AppData(String v){
 		value = v;
-	}
-
-	public String getValue(){
-		return value;
 	}
 }

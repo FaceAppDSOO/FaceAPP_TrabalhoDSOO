@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -16,15 +17,15 @@ import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import br.com.dsoo.facebook.view.Alert;
+import facebook4j.Category;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
-import facebook4j.FeedTargetingParameter.Gender;
+import facebook4j.IdNameEntity;
 import facebook4j.Like;
 import facebook4j.PagableList;
 import facebook4j.Paging;
 import facebook4j.PictureSize;
 import facebook4j.Post;
-import facebook4j.User;
 
 public class PostPanel extends JPanel implements ActionListener{
 
@@ -32,36 +33,54 @@ public class PostPanel extends JPanel implements ActionListener{
 	
 	private final Post post;
 	private Facebook fb;
-	private User user;
+	
+	private Category from;
+	private List<IdNameEntity> to;
 	
 	private boolean liked = false;
-	private String postId, userId;
+	private String postId, fromId;
 
-	private JLabel userName, userPic;
+	private JLabel fromName, toName, userPic;
 	private final JButton btLike;
 	private JTextPane txtPost;
 	
-	public PostPanel(Facebook fb, Post post){
+	public PostPanel(Facebook fb, Post post) throws FacebookException{
 		super();
 		this.post = post;
 		this.fb = fb;
 		URL pic = null;
-		String[] ids = post.getId().split("_");
-		userId = ids[0];
-		postId = ids[1];
+		
+		from = post.getFrom();
+		to = post.getTo();
+		
+		fromId = from.getId();
+		postId = post.getId().split("_")[1];
 		
 		btLike = new JButton();
 		
-		try{
-			user = fb.getUser(userId);
-			pic = fb.getPictureURL(userId, PictureSize.square);
-			btLike.setText(isPostLiked() ? "Descurtir" : "Curtir");
-		}catch(FacebookException e){
-			Alert.showError(e);
-		}
+		pic = fb.getPictureURL(fromId, PictureSize.square);
+		btLike.setText(isPostLiked() ? "Descurtir" : "Curtir");
 
-		userName = new JLabel(user.getName());
-		userName.setFont(new Font("Tahoma", Font.BOLD, 11));		
+		fromName = new JLabel(from.getName());
+		fromName.setFont(new Font("Tahoma", Font.BOLD, 11));
+		
+		toName = new JLabel();
+
+		if(to.size() > 1){
+			toName.setText(" - ...");
+
+			String tip = "";
+			for(IdNameEntity person : to){
+				tip += person.getName() + "\n";
+			}
+
+			toName.setToolTipText(tip.substring(0, tip.length() - 2));
+		}else if(to.size() == 1){
+			toName.setText(" - " + to.get(0).getName());
+		}
+		
+		toName.setFont(new Font("Tahoma", Font.BOLD, 11));
+
 		btLike.addActionListener(this);
 		txtPost = new JTextPane();
 		txtPost.setEditable(false);
@@ -69,10 +88,8 @@ public class PostPanel extends JPanel implements ActionListener{
 		
 		if(pic != null){
 			userPic = new JLabel(new ImageIcon(pic));
-		}else if(user.getGender() == Gender.Male.name()){
-			userPic = new JLabel(new ImageIcon("http://www.theipadguide.com/images/facebook50x50.jpg"));
 		}else{
-			userPic = new JLabel(new ImageIcon("http://www.runningguru.com/images/DefaultFemale.gif"));
+			userPic = new JLabel(new ImageIcon("https://www.teenytinywebsites.com/s/facebook_f_icon_50.png"));
 		}
 
 		GroupLayout groupLayout = new GroupLayout(this);
@@ -86,7 +103,8 @@ public class PostPanel extends JPanel implements ActionListener{
 						.addGroup(groupLayout.createSequentialGroup()
 							.addComponent(userPic)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(userName)))
+							.addComponent(fromName)
+							.addComponent(toName)))
 					.addContainerGap())
 		);
 		groupLayout.setVerticalGroup(
@@ -94,7 +112,8 @@ public class PostPanel extends JPanel implements ActionListener{
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(userName)
+						.addComponent(toName)
+						.addComponent(fromName)
 						.addComponent(userPic))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(txtPost, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
@@ -111,9 +130,12 @@ public class PostPanel extends JPanel implements ActionListener{
 	public void actionPerformed(ActionEvent e){
 		if(e.getSource() == btLike){
 			try{
-				if(fb.likePost(postId)){
-					liked = !liked;
-					btLike.setText(liked ? "Descurtir" : "Curtir");
+				if(!liked && fb.likePost(postId)){
+					liked = true;
+					btLike.setText("Descurtir");
+				}else if(fb.unlikePost(postId)){
+					liked = false;
+					btLike.setText("Curtir");
 				}
 			}catch(FacebookException e1){
 				Alert.showError(e1);

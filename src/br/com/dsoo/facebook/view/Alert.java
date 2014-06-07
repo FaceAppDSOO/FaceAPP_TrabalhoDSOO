@@ -42,7 +42,7 @@ public class Alert extends JOptionPane{
 	}
 	
 	public static String showAuthenticationMessage(Facebook facebook){
-		selection = new StringSelection(facebook.getOAuthAuthorizationURL(AppData.AUTH_URL.getValue()));
+		selection = new StringSelection(facebook.getOAuthAuthorizationURL(AppData.AUTH_URL.value));
 		clipboard.setContents(selection, selection);
 		
 		return showInput(null, "Autenticação", "O link de autenticação foi colado na sua área de transferência.\nCole no seu navegador e copie o código de resposta:");

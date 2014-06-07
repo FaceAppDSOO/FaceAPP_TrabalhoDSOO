@@ -30,7 +30,8 @@ import facebook4j.auth.AccessToken;
 public class User{
 
 	private String name;
-	private Services s;
+	private final Services s;
+	private final Settings settings;
 	
 	private Facebook fb;
 	private ResponseList<Friend> friends;
@@ -42,6 +43,11 @@ public class User{
 		family = fb.getFamily();
 		name = fb.getName();
 		s = new Services();
+		settings = new Settings(getId());
+	}
+
+	public Settings getSettings(){
+		return settings;
 	}
 
 	/**
@@ -61,19 +67,19 @@ public class User{
 		ArrayList<facebook4j.Family> undefined = new ArrayList<>();
 		
 		for(facebook4j.Family p : family){
-			if(p.getRelationship().matches(Family.GRANDPARENT.getValue())){
+			if(p.getRelationship().matches(Family.GRANDPARENT.value)){
 				gParents.add(p);
-			}else if(p.getRelationship().matches(Family.PARENTS.getValue())){
+			}else if(p.getRelationship().matches(Family.PARENTS.value)){
 				parents.add(p);
-			}else if(p.getRelationship().matches(Family.UNCLES.getValue())){
+			}else if(p.getRelationship().matches(Family.UNCLES.value)){
 				uncles.add(p);
-			}else if(p.getRelationship().matches(Family.BROTHERS_AND_SISTERS.getValue())){
+			}else if(p.getRelationship().matches(Family.BROTHERS_AND_SISTERS.value)){
 				brothers.add(p);
-			}else if(p.getRelationship().matches(Family.COUSINS.getValue())){
+			}else if(p.getRelationship().matches(Family.COUSINS.value)){
 				cousins.add(p);
-			}else if(p.getRelationship().matches(Family.SONS.getValue())){
+			}else if(p.getRelationship().matches(Family.SONS.value)){
 				sons.add(p);
-			}else if(p.getRelationship().matches(Family.GRANDSONS.getValue())){
+			}else if(p.getRelationship().matches(Family.GRANDSONS.value)){
 				grandsons.add(p);
 			}else{
 				undefined.add(p);
@@ -173,8 +179,32 @@ public class User{
 	 * @return Feed de notícias
 	 * @throws FacebookException
 	 */
-	public ResponseList<Post> getNewsFeed() throws FacebookException{
-		return fb.getHome();
+	public Post[] getNewsFeed(int quantity) throws FacebookException{
+		ArrayList<Post> posts = new ArrayList<>();
+
+		ResponseList<Post> home = fb.getHome();
+		Paging<Post> paging = null;
+
+		while(home != null){
+			for(Post post : home){
+				if(posts.size() == quantity){
+					return posts.toArray(new Post[quantity]);
+				}
+
+				if(post.getType().equals("status") && post.getMessage() != null){
+					posts.add(post);
+				}
+			}
+			
+			if((paging = home.getPaging()) != null){
+				home = fb.fetchNext(paging);
+				continue;
+			}
+			
+			break;
+		}
+		
+		return posts.toArray(new Post[posts.size()]);
 	}
 	
 	public ArrayList<Event> getUserAgenda() throws FacebookException, ParseException{

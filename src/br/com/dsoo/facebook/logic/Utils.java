@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import facebook4j.Event;
-import br.com.dsoo.facebook.logic.constants.Months;
 import br.com.dsoo.facebook.logic.constants.Time;
-import br.com.dsoo.facebook.logic.constants.WeekDays;
 
 public class Utils{
 
@@ -58,63 +56,63 @@ public class Utils{
 		switch(word){
 			// DIAS DA SEMANA
 			case "Sun":
-				return WeekDays.SUNDAY.getValue();
+				return Time.WeekDays.SUNDAY.value;
 				
 			case "Mon":
-				return WeekDays.MONDAY.getValue();
+				return Time.WeekDays.MONDAY.value;
 				
 			case "Tue":
-				return WeekDays.TUESDAY.getValue();
+				return Time.WeekDays.TUESDAY.value;
 				
 			case "Wed":
-				return WeekDays.WEDNESDAY.getValue();
+				return Time.WeekDays.WEDNESDAY.value;
 				
 			case "Thu":
-				return WeekDays.THURSDAY.getValue();
+				return Time.WeekDays.THURSDAY.value;
 				
 			case "Fri":
-				return WeekDays.FRIDAY.getValue();
+				return Time.WeekDays.FRIDAY.value;
 				
 			case "Sat":
-				return WeekDays.SATURDAY.getValue();
+				return Time.WeekDays.SATURDAY.value;
 
 			
 			// MESES
 			case "Jan":
-				return Months.JANUARY.getValue();
+				return Time.Months.JANUARY.value;
 				
 			case "Feb":
-				return Months.FEBRUARY.getValue();
+				return Time.Months.FEBRUARY.value;
 				
 			case "Mar":
-				return Months.FEBRUARY.getValue();
+				return Time.Months.FEBRUARY.value;
 				
 			case "Apr":
-				return Months.APRIL.getValue();
+				return Time.Months.APRIL.value;
 				
 			case "May":
-				return Months.MAY.getValue();
+				return Time.Months.MAY.value;
 				
 			case "Jun":
-				return Months.JUNE.getValue();
+				return Time.Months.JUNE.value;
 				
 			case "Jul":
-				return Months.JULY.getValue();
+				return Time.Months.JULY.value;
 				
 			case "Aug":
-				return Months.AUGUST.getValue();
+				return Time.Months.AUGUST.value;
 				
 			case "Sep":
-				return Months.SEPTEMBER.getValue();
+				return Time.Months.SEPTEMBER.value;
 				
 			case "Oct":
-				return Months.OCTOBER.getValue();
+				return Time.Months.OCTOBER.value;
 				
 			case "Nov":
-				return Months.NOVEMBER.getValue();
+				return Time.Months.NOVEMBER.value;
 				
 			case "Dec":
-				return Months.DECEMBER.getValue();
+				return Time.Months.DECEMBER.value;
 				
 			default:
 				return "_" + word;
@@ -174,6 +172,6 @@ public class Utils{
 		
 		long diff = afterDate.getTime() - beforeDate.getTime();
 		
-		return diff / param.getValue();
+		return diff / param.value;
 	}
 }

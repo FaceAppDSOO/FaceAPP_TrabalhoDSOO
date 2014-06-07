@@ -16,20 +16,20 @@ public class FaceApp {
 		User user = null;
 		
 		Authenticator auth = new Authenticator();
-		FaceAppFrame frame = null;
 		
 		boolean retry = false;
 		
 		do{
 			try{
-				frame = new FaceAppFrame(user = new User(auth.authenticate()));
+				new FaceAppFrame(user = new User(auth.authenticate()));
 			}catch(FacebookException | IOException e){
 				Alert.showError(e);
 				retry = true;
 			}catch(AuthenticationFailedException e){
 				Alert.showError(e);
+				retry = false;
 			}
-		}while(retry || user == null || !user.isAuthenticated());
+		}while(retry && (user == null || !user.isAuthenticated()));
 		
 //		Ui ui = new Ui();
 //

@@ -37,7 +37,7 @@ public class Emailer{
 	public void sendEmail(String msg, String subject, String ... to) throws AddressException, MessagingException{
 		Session session = Session.getInstance(mailServerConfig, new javax.mail.Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(AppData.APP_EMAIL.getValue(), AppData.APP_EMAIL_PASS.getValue());
+				return new PasswordAuthentication(AppData.APP_EMAIL.value, AppData.APP_EMAIL_PASS.value);
 			}
 		});
 		
