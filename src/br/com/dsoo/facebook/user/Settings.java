@@ -4,8 +4,9 @@ public class Settings{
 
 	private final String id;
 	private int activitiesReportSince, agendaSince, newsFeedSize;
-	private boolean sendActivitiesReportEmail;
-	private String activitiesReportEmail;
+	private boolean sendActivitiesReportEmail, likePhotosWhenTagged, downloadPhotosWhenTagged = true, likeUsersListStatuses;
+	private String activitiesReportEmail, downloadPhotoFilePath;
+	private String[] usersIdsToLikeStatuses;
 
 
 	public Settings(String userId){
@@ -54,5 +55,45 @@ public class Settings{
 
 	public void setActivitiesReportEmail(String activitiesReportEmail){
 		this.activitiesReportEmail = activitiesReportEmail;
+	}
+
+	public boolean isLikePhotosWhenTagged(){
+		return likePhotosWhenTagged;
+	}
+
+	public void setLikePhotosWhenTagged(boolean likePhotosWhenTagged){
+		this.likePhotosWhenTagged = likePhotosWhenTagged;
+	}
+
+	public boolean isDownloadPhotosWhenTagged(){
+		return downloadPhotosWhenTagged;
+	}
+
+	public void setDownloadPhotosWhenTagged(boolean downloadPhotosWhenTagged){
+		this.downloadPhotosWhenTagged = downloadPhotosWhenTagged;
+	}
+
+	public boolean isLikeUsersListStatuses(){
+		return likeUsersListStatuses;
+	}
+
+	public void setLikeUsersListStatuses(boolean likeUsersListStatuses){
+		this.likeUsersListStatuses = likeUsersListStatuses;
+	}
+
+	public String[] getUsersIdsToLikeStatuses(){
+		return usersIdsToLikeStatuses;
+	}
+
+	public void setUsersIdsToLikeStatuses(String[] usersIdsToLikeStatuses){
+		this.usersIdsToLikeStatuses = usersIdsToLikeStatuses;
+	}
+
+	public String getDownloadPhotoFilePath(){
+		return downloadPhotoFilePath;
+	}
+
+	public void setDownloadPhotoFilePath(String downloadPhotoFilePath){
+		this.downloadPhotoFilePath = downloadPhotoFilePath;
 	}
 }

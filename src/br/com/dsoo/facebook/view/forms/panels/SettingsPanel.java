@@ -1,34 +1,38 @@
 package br.com.dsoo.facebook.view.forms.panels;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
-
-import br.com.dsoo.facebook.user.User;
-
+import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import java.awt.Color;
-
-import javax.swing.JCheckBox;
-import javax.swing.JTextField;
+import br.com.dsoo.facebook.user.User;
+import br.com.dsoo.facebook.view.Alert;
 
 public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyListener{
 
 	private static final long serialVersionUID = 1L;
 	private final JSpinner spinnerFeed, spinnerActivity, spinnerAgenda;
 	private final JTextField txtActivityEmail;
-	private final JCheckBox chkActivitySendEmail;
+	private final JCheckBox chkActivitySendEmail, chkLikePhotos, chkDownloadPhotos, chkLikeUserStatuses;
+	private final JButton btConfigureUsersToLikeStatuses, btConfigurePhotoDownloadPath;
 
 	public SettingsPanel(User user){
 		super(user);
@@ -39,13 +43,65 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 		spinnerFeed = new JSpinner();
 		spinnerFeed.setValue(20);
 		
+		JPanel panel_2 = new JPanel();
+		panel_2.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Opera\u00E7\u00F5es autom\u00E1ticas", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		
+		chkLikePhotos = new JCheckBox("Curtir fotos onde \u00E9 marcado");
+		
+		chkDownloadPhotos = new JCheckBox("Baixar fotos onde \u00E9 marcado");
+		chkDownloadPhotos.setToolTipText("O download de fotos \u00E9 limitado em 25 fotos por vez!");
+		
+		chkLikeUserStatuses = new JCheckBox("Resposta autom\u00E1tica do bate-papo");
+		
+		btConfigureUsersToLikeStatuses = new JButton("Configurar");
+		btConfigureUsersToLikeStatuses.setFont(new Font("Tahoma", Font.PLAIN, 8));
+		btConfigureUsersToLikeStatuses.setEnabled(false);
+		
+		btConfigurePhotoDownloadPath = new JButton("...");
+		btConfigurePhotoDownloadPath.setToolTipText("Configurar pasta de destino");
+		btConfigurePhotoDownloadPath.setFont(new Font("Tahoma", Font.PLAIN, 9));
+		
+		GroupLayout gl_panel_2 = new GroupLayout(panel_2);
+		gl_panel_2.setHorizontalGroup(
+			gl_panel_2.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_2.createSequentialGroup()
+					.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING, false)
+						.addComponent(chkLikePhotos)
+						.addGroup(gl_panel_2.createSequentialGroup()
+							.addComponent(chkDownloadPhotos)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(btConfigurePhotoDownloadPath, 0, 0, Short.MAX_VALUE))
+						.addComponent(chkLikeUserStatuses)
+						.addGroup(gl_panel_2.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(btConfigureUsersToLikeStatuses)))
+					.addContainerGap(21, Short.MAX_VALUE))
+		);
+		gl_panel_2.setVerticalGroup(
+			gl_panel_2.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_2.createSequentialGroup()
+					.addComponent(chkLikePhotos)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_panel_2.createParallelGroup(Alignment.BASELINE)
+						.addComponent(chkDownloadPhotos)
+						.addComponent(btConfigurePhotoDownloadPath))
+					.addPreferredGap(ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+					.addComponent(chkLikeUserStatuses)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(btConfigureUsersToLikeStatuses))
+		);
+		panel_2.setLayout(gl_panel_2);
+		
 		GroupLayout gl_pLeft = new GroupLayout(pLeft);
 		gl_pLeft.setHorizontalGroup(
 			gl_pLeft.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_pLeft.createSequentialGroup()
-					.addComponent(lblMensagensASerem)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(spinnerFeed, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addGroup(gl_pLeft.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_pLeft.createSequentialGroup()
+							.addComponent(lblMensagensASerem)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(spinnerFeed, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 290, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		gl_pLeft.setVerticalGroup(
@@ -54,19 +110,21 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 					.addGroup(gl_pLeft.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblMensagensASerem)
 						.addComponent(spinnerFeed, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(258, Short.MAX_VALUE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(229, Short.MAX_VALUE))
 		);
 		pLeft.setLayout(gl_pLeft);
 		
 		JPanel pRight = new JPanel();
 		GroupLayout groupLayout = new GroupLayout(this);
 		groupLayout.setHorizontalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
+			groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(pLeft, GroupLayout.PREFERRED_SIZE, 215, GroupLayout.PREFERRED_SIZE)
-					.addGap(5)
-					.addComponent(pRight, GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
+					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+					.addComponent(pLeft, GroupLayout.PREFERRED_SIZE, 288, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(pRight, GroupLayout.PREFERRED_SIZE, 286, GroupLayout.PREFERRED_SIZE)
 					.addContainerGap())
 		);
 		groupLayout.setVerticalGroup(
@@ -74,21 +132,21 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(pRight, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
-						.addComponent(pLeft, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE))
+						.addComponent(pLeft, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
+						.addComponent(pRight, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		
 		JPanel panel = new JPanel();
-		panel.setBorder(new TitledBorder(new LineBorder(new Color(130, 135, 144)), "Resumo de atividades", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Resumo de atividades", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		
 		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new TitledBorder(new LineBorder(new Color(130, 135, 144)), "Agenda", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel_1.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Agenda", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GroupLayout gl_pRight = new GroupLayout(pRight);
 		gl_pRight.setHorizontalGroup(
 			gl_pRight.createParallelGroup(Alignment.LEADING)
-				.addComponent(panel, GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
-				.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
+				.addComponent(panel, GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
+				.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
 		);
 		gl_pRight.setVerticalGroup(
 			gl_pRight.createParallelGroup(Alignment.LEADING)
@@ -96,7 +154,7 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 					.addComponent(panel, GroupLayout.PREFERRED_SIZE, 98, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 43, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(131, Short.MAX_VALUE))
+					.addContainerGap(231, Short.MAX_VALUE))
 		);
 		
 		JLabel lblDiasASerem_1 = new JLabel("Dias a serem pesquisados");
@@ -174,30 +232,85 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 		spinnerActivity.addChangeListener(this);
 		spinnerAgenda.addChangeListener(this);
 		spinnerFeed.addChangeListener(this);
+		
 		chkActivitySendEmail.addChangeListener(this);
 		txtActivityEmail.addKeyListener(this);
+		
+		chkLikePhotos.addChangeListener(this);
+
+		chkDownloadPhotos.addChangeListener(this);
+		btConfigurePhotoDownloadPath.addActionListener(this);
+		
+		chkLikeUserStatuses.addChangeListener(this);
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e){
+		//Configurar paste de destino
+		if(e.getSource() == btConfigurePhotoDownloadPath){
+			JFileChooser chooser = new JFileChooser(user.getSettings().getDownloadPhotoFilePath());
+			chooser.setDialogTitle("Pasta destino");
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			chooser.setApproveButtonText("Selecionar");
+			
+			if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+				File path = chooser.getSelectedFile();
+				path.mkdirs();
+				try{
+					user.getSettings().setDownloadPhotoFilePath(path.getCanonicalPath() + "\\");
+				}catch(IOException e1){
+					Alert.showError(e1);
+				}
+			}
+		}
 	}
 	
 	@Override
 	public void stateChanged(ChangeEvent e){
+		boolean flag = false;
+		int param = 0;
+		
+		//Quantidade de postagens do Feed
 		if(e.getSource() == spinnerFeed){
-			int size = (int)spinnerFeed.getValue();
-			if(size > 0)
-				user.getSettings().setNewsFeedSize(size);
+			param = (int)spinnerFeed.getValue();
+			if(param > 0)
+				user.getSettings().setNewsFeedSize(param);
+			
+		//Dias a serem pesquisados (Atividades)
 		}else if(e.getSource() == spinnerActivity){
-			int days = (int)spinnerActivity.getValue();
-			if(days > 0){
-				user.getSettings().setActivitiesReportSince(days);
+			param = (int)spinnerActivity.getValue();
+			if(param > 0){
+				user.getSettings().setActivitiesReportSince(param);
 			}
+			
+		//Dias a serem pesquisados (Agenda)
 		}else if(e.getSource() == spinnerAgenda){
-			int days = (int)spinnerAgenda.getValue();
-			if(days > 0){
-				user.getSettings().setAgendaSince(days);
+			param = (int)spinnerAgenda.getValue();
+			if(param > 0){
+				user.getSettings().setAgendaSince(param);
 			}
+			
+		//Enviar Resumo como e-mail
 		}else if(e.getSource() == chkActivitySendEmail){
-			boolean enabled = chkActivitySendEmail.isSelected();
-			txtActivityEmail.setEnabled(enabled);
-			user.getSettings().setSendActivitiesReportEmail(enabled);
+			flag = chkActivitySendEmail.isSelected();
+			txtActivityEmail.setEnabled(flag);
+			user.getSettings().setSendActivitiesReportEmail(flag);
+			
+		//Curtir fotos onde é marcado
+		}else if(e.getSource() == chkLikePhotos){
+			flag = chkLikePhotos.isSelected();
+			user.getSettings().setLikePhotosWhenTagged(flag);
+			
+		//Baixar fotos onde é marcado
+		}else if(e.getSource() == chkDownloadPhotos){
+			flag = chkDownloadPhotos.isSelected();
+			user.getSettings().setDownloadPhotosWhenTagged(flag);
+			
+		//Resposta automática no bate-papo
+		}else if(e.getSource() == chkLikeUserStatuses){
+			flag = chkLikeUserStatuses.isSelected();
+			user.getSettings().setLikeUsersListStatuses(flag);
+			btConfigureUsersToLikeStatuses.setEnabled(flag);
 		}
 	}
 	

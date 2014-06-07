@@ -13,11 +13,12 @@ import java.awt.event.MouseListener;
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.LoadingDialog;
 
-public class JPanelCustom extends JPanel implements ActionListener, MouseListener, KeyListener{
+public abstract class JPanelCustom extends JPanel implements ActionListener, MouseListener, KeyListener{
 
 	private static final long serialVersionUID = 1L;
 	
@@ -48,8 +49,6 @@ public class JPanelCustom extends JPanel implements ActionListener, MouseListene
 		}
 	}
 	
-	void addListeners(){}
-
 	public User getUser(){
 		return user;
 	}
@@ -89,6 +88,7 @@ public class JPanelCustom extends JPanel implements ActionListener, MouseListene
 	}
 
 	@Override public void actionPerformed(ActionEvent e){}
+	
 	@Override public void mouseEntered(MouseEvent e){}
 	@Override public void mouseExited(MouseEvent e){}
 	@Override public void mouseReleased(MouseEvent e){}
@@ -98,4 +98,7 @@ public class JPanelCustom extends JPanel implements ActionListener, MouseListene
 	@Override public void keyPressed(KeyEvent e){}
 	@Override public void keyReleased(KeyEvent e){}
 	@Override public void keyTyped(KeyEvent e){}
+
+	void addListeners(){}
+	void doPop(JPopupMenu menu, MouseEvent e){}
 }

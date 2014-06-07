@@ -21,6 +21,7 @@ import facebook4j.FacebookException;
 import facebook4j.Friend;
 import facebook4j.Like;
 import facebook4j.Paging;
+import facebook4j.Photo;
 import facebook4j.PictureSize;
 import facebook4j.Post;
 import facebook4j.Reading;
@@ -31,7 +32,6 @@ public class User{
 
 	private String name;
 	private final Services s;
-	private final Settings settings;
 	
 	private Facebook fb;
 	private ResponseList<Friend> friends;
@@ -42,12 +42,64 @@ public class User{
 		friends = fb.getFriends();
 		family = fb.getFamily();
 		name = fb.getName();
-		s = new Services();
-		settings = new Settings(getId());
+		s = new Services(getId());
 	}
 
 	public Settings getSettings(){
-		return settings;
+		return s.getSettings();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * @throws FacebookException
+	 * @throws IOException 
+	 */
+	public void likeAndDownloadTaggedPhotos() throws FacebookException, IOException{
+		ResponseList<Photo> photos = fb.photos().getPhotos();
+		Paging<Photo> paging = null;
+		
+		ArrayList<Photo> imgsToDownload = new ArrayList<>();
+		
+		boolean like = getSettings().isLikePhotosWhenTagged(),
+				download = getSettings().isDownloadPhotosWhenTagged();
+		int likes = 0,
+			downloads = 0;
+		
+		while(photos != null){
+			if(likes < 25 && like){
+				likesLoop: for(Photo photo : photos){
+					if(likes == 25){
+						break likesLoop;
+					}
+					
+					fb.likePhoto(photo.getId());
+					likes++;
+				}
+			}
+			
+			if(downloads < 25 && download){
+				downloadsLoop: for(int i = 0; i < photos.size(); i++){
+					if(downloads == 25){
+						break downloadsLoop;
+					}
+					
+					imgsToDownload.add(photos.get(i));
+					downloads++;
+				}
+			}
+			
+			if(downloads < 25 && (paging = photos.getPaging()) != null){
+				photos = fb.fetchNext(paging);
+				continue;
+			}
+			
+			break;
+		}
+		
+		if(download && getSettings().getDownloadPhotoFilePath() != null){
+			s.downloadPhotos(imgsToDownload.toArray(new Photo[imgsToDownload.size()]));
+		}
 	}
 
 	/**

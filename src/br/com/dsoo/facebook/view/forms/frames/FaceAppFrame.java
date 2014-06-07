@@ -59,31 +59,33 @@ public class FaceAppFrame extends JFrame implements ActionListener{
 		settingsItem.addActionListener(this);
 		
 		setContentPane(mainPanel = new MainPanel(user));
+		settingsPanel = new SettingsPanel(user);
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e){
-		try{
-			if(e.getSource() == quitItem){
-				if(Alert.showYesNo(this, "Sair", "Deseja mesmo sair?")){
-					user.logout();
-					System.exit(DO_NOTHING_ON_CLOSE);
-				}
-			}else{
-				getContentPane().setVisible(false);
-				user = ((JPanelCustom)getContentPane()).getUser();
-				getContentPane().setVisible(false);
-				//TRATAR MUDANÇAS NAS CONFIGURAÇÕES
-				if(e.getSource() == faceItem){
-					setContentPane(new MainPanel(user));
-				}else if(e.getSource() == settingsItem){
-					setContentPane(new SettingsPanel(user));
-				}
-				
-				pack();
+		if(e.getSource() == quitItem){
+			if(Alert.showYesNo(this, "Sair", "Deseja mesmo sair?")){
+				user.logout();
+				System.exit(DO_NOTHING_ON_CLOSE);
 			}
-		}catch(FacebookException e1){
-			Alert.showError(e1);
+		}else{
+			getContentPane().setVisible(false);
+			user = ((JPanelCustom)getContentPane()).getUser();
+			getContentPane().setVisible(false);
+			
+			if(e.getSource() == faceItem){
+				mainPanel.setUser(user);
+				setContentPane(mainPanel);
+				mainPanel.setVisible(true);
+				((MainPanel)mainPanel).initializeNewsFeed();
+			}else if(e.getSource() == settingsItem){
+				settingsPanel.setUser(user);
+				setContentPane(settingsPanel);
+				settingsPanel.setVisible(true);
+			}
+			
+			pack();
 		}
 	}
 

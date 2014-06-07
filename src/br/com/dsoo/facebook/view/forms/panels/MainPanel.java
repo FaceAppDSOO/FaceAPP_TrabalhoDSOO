@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import javafx.scene.input.MouseButton;
+
 import javax.mail.MessagingException;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -17,7 +19,9 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -38,10 +42,20 @@ public class MainPanel extends JPanelCustom{
 	private JPanel userPanel;
 	private JScrollPane container;
 	private JSeparator separator;
+
+	private JPopupMenu feedPopupMenu;
+	private JMenuItem refreshItem;
 	
 	public MainPanel(User user) throws FacebookException{
 		super(user);
 		showLoading();
+		
+		try{
+			user.likeAndDownloadTaggedPhotos();
+		}catch(IOException e){
+			Alert.showError(e);
+		}
+		
 		setBackground(SystemColor.menu);
 		setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		
@@ -52,13 +66,15 @@ public class MainPanel extends JPanelCustom{
 		agendaLabel = new JLabel("Agenda");
 		separator = new JSeparator();
 		
-		//botões
 		btPost = new JButton("Nova postagem");
 		
-		//panels
 		userPanel = new JPanel();
 		container = new JScrollPane(loadUserFeed());
 		container.setViewportBorder(null);
+		
+		feedPopupMenu = new JPopupMenu("Feed de notícias");
+		refreshItem = new JMenuItem("Recarregar");
+		feedPopupMenu.add(refreshItem);
 		
 		userPic = new JLabel(new ImageIcon(user.getUserPic()));
 		
@@ -134,10 +150,20 @@ public class MainPanel extends JPanelCustom{
 	
 	@Override
 	void addListeners(){
+		
 		btPost.addActionListener(this);
 		userName.addMouseListener(this);
 		activityReportLabel.addMouseListener(this);
 		agendaLabel.addMouseListener(this);
+
+		container.addMouseListener(this);
+		
+		refreshItem.addActionListener(this);
+	}
+	
+	public void initializeNewsFeed(){
+		container.setViewportView(loadUserFeed());
+		container.setViewportBorder(null);
 	}
 
 	private ListItemPanel loadUserFeed(){
@@ -166,6 +192,7 @@ public class MainPanel extends JPanelCustom{
 
 	@Override
 	public void actionPerformed(ActionEvent e){
+		//Nova postagem
 		if(e.getSource() == btPost){
 			try{
 				String post = Alert.showInput(this, "Nova postagem", "No que você está pensando?");
@@ -176,36 +203,47 @@ public class MainPanel extends JPanelCustom{
 			}catch(FacebookException e1){
 				Alert.showError(e1);
 			}
+		//Botão direito no feed
+		}else if(e.getSource() == refreshItem){
+			showLoading();
+			initializeNewsFeed();
+			hideLoading();
 		}
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e){
-		showLoading();
-		try{
-			String data = null, title = null;
-			
-			if(e.getSource() == userName){
-				data = user.toString();
-				title = "Dados do usuário";
-			}else if(e.getSource() == activityReportLabel){
-				data = user.getActivitiesReport();
-				title = "Resumo de Atividades";
-			}else{				
-				JScrollPane scroll = new JScrollPane(loadUserEvents());
-				scroll.setViewportBorder(null);
-				
-				showChild(scroll, "Eventos", 170, 320);
+		if(e.getButton() == MouseButton.SECONDARY.ordinal()){
+			if(e.getComponent() == container){
+				doPop(feedPopupMenu, e);
 			}
-			
-			hideLoading();
-			
-			if(data != null){
-				Alert.show(this, title, data);
+		}else{
+			showLoading();
+			try{
+				String data = null, title = null;
+
+				if(e.getSource() == userName){
+					data = user.toString();
+					title = "Dados do usuário";
+				}else if(e.getSource() == activityReportLabel){
+					data = user.getActivitiesReport();
+					title = "Resumo de Atividades";
+				}else if(e.getSource() == agendaLabel){				
+					JScrollPane scroll = new JScrollPane(loadUserEvents());
+					scroll.setViewportBorder(null);
+
+					showChild(scroll, "Eventos", 170, 320);
+				}
+
+				hideLoading();
+
+				if(data != null){
+					Alert.show(this, title, data);
+				}
+			}catch(FacebookException | ParseException | MessagingException | IOException e1){
+				Alert.showError(e1);
+				hideLoading();
 			}
-		}catch(FacebookException | ParseException | MessagingException | IOException e1){
-			Alert.showError(e1);
-			hideLoading();
 		}
 	}
 
@@ -222,11 +260,16 @@ public class MainPanel extends JPanelCustom{
 			return null;
 		}
 		
-		for(Event event : evs){
-			panel.add(new EventPanel(event));
+		for(int i = evs.size() - 1; i >= 0; i--){
+			panel.add(new EventPanel(evs.get(i)));
 			panel.add(Box.createRigidArea(new Dimension(10, 10)));
 		}
 		
 		return panel;
+	}
+
+	@Override
+	void doPop(JPopupMenu menu, MouseEvent e){
+		menu.show(e.getComponent(), e.getX(), e.getY());
 	}
 }
