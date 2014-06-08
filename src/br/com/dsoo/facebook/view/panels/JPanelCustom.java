@@ -1,16 +1,18 @@
-package br.com.dsoo.facebook.view.forms.panels;
+package br.com.dsoo.facebook.view.panels;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
 
 import javax.swing.GroupLayout;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -30,7 +32,7 @@ public abstract class JPanelCustom extends JPanel implements ActionListener, Mou
 		this.user = user;
 	}
 	
-	void showLoading(){
+	Container findParent(){
 		Container parent = getParent();
 		if(parent != null){
 			parent = parent.getParent();
@@ -38,8 +40,25 @@ public abstract class JPanelCustom extends JPanel implements ActionListener, Mou
 				parent = parent.getParent();
 			}
 		}
+		
+		return parent;
+	}
+	
+	void showLoading(){
+		Container parent = findParent();
 
 		loading = new LoadingDialog(parent == null ? null : (JFrame)parent, "Carregando...");
+	}
+	
+	void closeParent(){
+		Container parent = findParent();
+		WindowEvent wev = null;
+		if(parent instanceof JFrame){			
+			wev = new WindowEvent((JFrame)parent, WindowEvent.WINDOW_CLOSING);
+		}else if(parent instanceof JDialog){
+			wev = new WindowEvent((JDialog)parent, WindowEvent.WINDOW_CLOSING);
+		}
+        Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(wev);
 	}
 	
 	void hideLoading(){
@@ -57,34 +76,42 @@ public abstract class JPanelCustom extends JPanel implements ActionListener, Mou
 		this.user = user;
 	}
 	
-	public void showChild(Component comp, String title, int height, int width){
-		JFrame f = new JFrame(title);
-		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		f.setLocationRelativeTo(this);
+	public void showChild(Component comp, String title /*, int height, int width*/ ){
+		JDialog dialog = new JDialog((JFrame)findParent(), title, true);
+		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.setLocationRelativeTo(this);
 		
 		if(comp instanceof JPanel){
-			((JPanel)comp).setSize(new Dimension(height, width));
-			f.setContentPane((JPanel)comp);
+			//((JPanel)comp).setSize(new Dimension(height, width));
+			dialog.setContentPane((JPanel)comp);
 		}else{
 			JPanel panel = new JPanel();
 			GroupLayout layout = new GroupLayout(panel);
 			
 			layout.setHorizontalGroup(layout.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(comp, GroupLayout.DEFAULT_SIZE, width, Short.MAX_VALUE)
+					.addComponent(comp)//, GroupLayout.DEFAULT_SIZE, width, Short.MAX_VALUE)
 					.addContainerGap());
 			layout.setVerticalGroup(layout.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(comp, GroupLayout.DEFAULT_SIZE, height, Short.MAX_VALUE)
+					.addComponent(comp)//, GroupLayout.DEFAULT_SIZE, height, Short.MAX_VALUE)
 					.addContainerGap());
 			
 			panel.setLayout(layout);
-			f.setContentPane(panel);
+			dialog.setContentPane(panel);
 		}
 		
-		f.setResizable(false);
-		f.pack();
-		f.setVisible(true);
+		dialog.setResizable(false);
+		dialog.pack();
+		
+		hideLoading();
+		
+		dialog.setLocation(
+				dialog.getX() - (dialog.getWidth() / 2),
+				dialog.getY() - (dialog.getHeight() / 2)
+				);
+		
+		dialog.setVisible(true);
 	}
 
 	@Override public void actionPerformed(ActionEvent e){}

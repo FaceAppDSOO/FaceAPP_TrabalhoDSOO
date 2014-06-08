@@ -1,6 +1,7 @@
-package br.com.dsoo.facebook.view.forms.panels;
+package br.com.dsoo.facebook.view.panels;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
@@ -213,26 +214,29 @@ public class MainPanel extends JPanelCustom{
 
 	@Override
 	public void mouseClicked(MouseEvent e){
+		Component comp = e.getComponent();
+		
 		if(e.getButton() == MouseButton.SECONDARY.ordinal()){
-			if(e.getComponent() == container){
+			if(comp == container){
 				doPop(feedPopupMenu, e);
 			}
-		}else{
+		}else if(comp == userName || comp == activityReportLabel || comp == agendaLabel){
 			showLoading();
 			try{
 				String data = null, title = null;
 
-				if(e.getSource() == userName){
+				if(comp == userName){
 					data = user.toString();
 					title = "Dados do usuário";
-				}else if(e.getSource() == activityReportLabel){
+				}else if(comp == activityReportLabel){
 					data = user.getActivitiesReport();
 					title = "Resumo de Atividades";
-				}else if(e.getSource() == agendaLabel){				
+				}else if(comp == agendaLabel){				
 					JScrollPane scroll = new JScrollPane(loadUserEvents());
+					scroll.setSize(new Dimension(200, 350));
 					scroll.setViewportBorder(null);
 
-					showChild(scroll, "Eventos", 170, 320);
+					showChild(scroll, "Eventos");
 				}
 
 				hideLoading();

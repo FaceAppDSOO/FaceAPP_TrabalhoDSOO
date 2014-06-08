@@ -1,6 +1,5 @@
-package br.com.dsoo.facebook.view.forms.panels;
+package br.com.dsoo.facebook.view.panels;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -25,6 +24,7 @@ import javax.swing.event.ChangeListener;
 
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.Alert;
+import facebook4j.Friend;
 
 public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyListener{
 
@@ -44,7 +44,7 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 		spinnerFeed.setValue(20);
 		
 		JPanel panel_2 = new JPanel();
-		panel_2.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Opera\u00E7\u00F5es autom\u00E1ticas", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel_2.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Opera\u00E7\u00F5es autom\u00E1ticas", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		
 		chkLikePhotos = new JCheckBox("Curtir fotos onde \u00E9 marcado");
 		
@@ -242,11 +242,12 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 		btConfigurePhotoDownloadPath.addActionListener(this);
 		
 		chkLikeUserStatuses.addChangeListener(this);
+		btConfigureUsersToLikeStatuses.addActionListener(this);
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e){
-		//Configurar paste de destino
+		//Configurar pasta de destino
 		if(e.getSource() == btConfigurePhotoDownloadPath){
 			JFileChooser chooser = new JFileChooser(user.getSettings().getDownloadPhotoFilePath());
 			chooser.setDialogTitle("Pasta destino");
@@ -261,6 +262,30 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 				}catch(IOException e1){
 					Alert.showError(e1);
 				}
+			}
+		//Configurar usuários da resposta automática
+		}else if(e.getSource() == btConfigureUsersToLikeStatuses){
+			UsersChooserPanel chooser = new UsersChooserPanel(user);
+
+			showChild(chooser, "Selecionar amigos");
+			
+//			JDialog d = new JDialog((JFrame)findParent(), "Selecionar amigos", true);
+//			d.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//			d.setContentPane(chooser);
+//			d.setResizable(false);
+//			d.pack();
+//			d.setLocationRelativeTo(this);
+//			d.setVisible(true);
+			
+			if(chooser.getChoice() == ConfigurePanel.SAVE){
+				Friend[] friends = (Friend[])chooser.getData();
+				String ids = "";
+				
+				for(Friend friend : friends){
+					ids += friend.getId() + ",";
+				}
+				
+				user.getSettings().setUsersIdsToLikeStatuses(ids.substring(0, ids.length() - 1).split(","));
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-package br.com.dsoo.facebook.view.forms.frames;
+package br.com.dsoo.facebook.view.frames;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,9 +10,9 @@ import javax.swing.JMenuItem;
 
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.Alert;
-import br.com.dsoo.facebook.view.forms.panels.JPanelCustom;
-import br.com.dsoo.facebook.view.forms.panels.MainPanel;
-import br.com.dsoo.facebook.view.forms.panels.SettingsPanel;
+import br.com.dsoo.facebook.view.panels.JPanelCustom;
+import br.com.dsoo.facebook.view.panels.MainPanel;
+import br.com.dsoo.facebook.view.panels.SettingsPanel;
 import facebook4j.FacebookException;
 
 public class FaceAppFrame extends JFrame implements ActionListener{

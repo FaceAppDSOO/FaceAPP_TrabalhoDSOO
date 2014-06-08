@@ -1,4 +1,4 @@
-package br.com.dsoo.facebook.view.forms.panels;
+package br.com.dsoo.facebook.view.panels;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
