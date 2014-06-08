@@ -269,14 +269,6 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 
 			showChild(chooser, "Selecionar amigos");
 			
-//			JDialog d = new JDialog((JFrame)findParent(), "Selecionar amigos", true);
-//			d.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-//			d.setContentPane(chooser);
-//			d.setResizable(false);
-//			d.pack();
-//			d.setLocationRelativeTo(this);
-//			d.setVisible(true);
-			
 			if(chooser.getChoice() == ConfigurePanel.SAVE){
 				Friend[] friends = (Friend[])chooser.getData();
 				String ids = "";

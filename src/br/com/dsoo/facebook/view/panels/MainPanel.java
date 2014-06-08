@@ -233,10 +233,9 @@ public class MainPanel extends JPanelCustom{
 					title = "Resumo de Atividades";
 				}else if(comp == agendaLabel){				
 					JScrollPane scroll = new JScrollPane(loadUserEvents());
-					scroll.setSize(new Dimension(200, 350));
 					scroll.setViewportBorder(null);
 
-					showChild(scroll, "Eventos");
+					showChild(scroll, "Eventos", 200, 350);
 				}
 
 				hideLoading();

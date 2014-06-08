@@ -2,6 +2,7 @@ package br.com.dsoo.facebook.view.panels;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -76,13 +77,17 @@ public abstract class JPanelCustom extends JPanel implements ActionListener, Mou
 		this.user = user;
 	}
 	
-	public void showChild(Component comp, String title /*, int height, int width*/ ){
+	public void showChild(JPanel panel, String title){
+		showChild(panel, title, panel.getHeight(), panel.getWidth());
+	}
+	
+	public void showChild(Component comp, String title, int height, int width){
 		JDialog dialog = new JDialog((JFrame)findParent(), title, true);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		dialog.setLocationRelativeTo(this);
 		
 		if(comp instanceof JPanel){
-			//((JPanel)comp).setSize(new Dimension(height, width));
+			((JPanel)comp).setSize(new Dimension(height, width));
 			dialog.setContentPane((JPanel)comp);
 		}else{
 			JPanel panel = new JPanel();
@@ -90,11 +95,11 @@ public abstract class JPanelCustom extends JPanel implements ActionListener, Mou
 			
 			layout.setHorizontalGroup(layout.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(comp)//, GroupLayout.DEFAULT_SIZE, width, Short.MAX_VALUE)
+					.addComponent(comp, GroupLayout.DEFAULT_SIZE, width, Short.MAX_VALUE)
 					.addContainerGap());
 			layout.setVerticalGroup(layout.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(comp)//, GroupLayout.DEFAULT_SIZE, height, Short.MAX_VALUE)
+					.addComponent(comp, GroupLayout.DEFAULT_SIZE, height, Short.MAX_VALUE)
 					.addContainerGap());
 			
 			panel.setLayout(layout);
