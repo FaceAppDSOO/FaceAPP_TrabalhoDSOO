@@ -26,7 +26,6 @@ import javax.swing.event.ChangeListener;
 
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.Alert;
-import facebook4j.FacebookException;
 import facebook4j.Friend;
 
 public class SettingsPanel extends ConfigurePanel implements ChangeListener, KeyListener, ItemListener{
@@ -398,7 +397,7 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 		//Armazena os dados no arquivo XML
 		try{
 			user.storeSettings();
-		}catch(IOException | FacebookException e){
+		}catch(IOException e){
 			Alert.showError(e);
 		}
 		

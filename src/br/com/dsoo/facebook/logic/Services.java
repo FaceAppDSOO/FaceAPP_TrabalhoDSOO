@@ -11,6 +11,7 @@ import java.net.URL;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
+import br.com.dsoo.facebook.user.FileManager;
 import br.com.dsoo.facebook.user.Settings;
 import br.com.dsoo.facebook.user.User;
 
@@ -22,7 +23,7 @@ import facebook4j.Photo;
 
 public class Services{
 
-	private final Logger logger = new Logger("Services");
+	private final Logger logger;
 	
 	private final Settings settings;
 	private Emailer emailer;
@@ -30,6 +31,7 @@ public class Services{
 	private XStream xstream;
 	
 	public Services(String userId) throws IOException{
+		logger = new Logger(userId, "Services");
 		initializeSerializer();
 		emailer = new Emailer();
 		settings = loadSettings(userId);
@@ -50,10 +52,11 @@ public class Services{
 		Photo photo = null;
 		for(int i = 0; i < photos.length; i++){
 			photo = photos[i];
+			String id = photo.getId();
 			b = new byte[2048];
 			url = photo.getSource();
 			in = url.openStream();
-			out = new FileOutputStream(folder + "photo_" + photo.getId() + ".jpg");
+			out = new FileOutputStream(FileManager.getPhotoFilePathAndName(folder, id));
 			
 			while((length = in.read(b)) != -1){
 				out.write(b, 0, length);
@@ -61,6 +64,8 @@ public class Services{
 			
 			in.close();
 			out.close();
+			
+			logger.log("Foto baixada", id);
 		}
 	}
 
@@ -76,6 +81,7 @@ public class Services{
 	 */
 	public void sendActivitiesEmail(User user, String msg, String ...to) throws AddressException, MessagingException, FacebookException, IOException{
 		emailer.sendEmail(msg, "Resumo de atividades de " + user.getFirstName(), to);
+		logger.log("Email enviado para " + to);
 		Emailer.refreshConfig();
 	}
 
@@ -83,17 +89,20 @@ public class Services{
 		return settings;
 	}
 	
-	private Settings loadSettings(String userId) throws IOException{
+	public Settings loadSettings(String userId) throws IOException{
 		try{
-			String xml = Utils.readFromFile("settings\\", "settings_" + userId + ".xml");
+			String xml = FileManager.readFromFile(FileManager.SETTINGS_PATH, FileManager.getSettingsFileName(userId));
+			logger.log("Configurações carregadas", userId);
 			return (Settings)xstream.fromXML(xml);
 		}catch(FileNotFoundException e){
 			return new Settings(userId);			
 		}
 	}
 	
-	public String parseSettings(){
-		return xstream.toXML(settings);
+	public void storeSettings() throws FileNotFoundException, IOException{
+		String userId = settings.getId();
+		FileManager.writeToFile(FileManager.SETTINGS_PATH, FileManager.getSettingsFileName(userId), xstream.toXML(settings), false);
+		logger.log("Configurações armazenadas", userId);
 	}
 	
 	private void initializeSerializer(){

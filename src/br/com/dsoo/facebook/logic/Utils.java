@@ -1,18 +1,8 @@
 package br.com.dsoo.facebook.logic;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Properties;
 
 import br.com.dsoo.facebook.logic.constants.Time;
 
@@ -175,62 +165,5 @@ public class Utils{
 		date.setTime(date.getTime() - (diff * param.value));
 		
 		return date;
-	}
-	
-	public static void writeToFile(String filePath, String fileNameAndExtension, String content, boolean append) throws FileNotFoundException, IOException{
-		File path = new File(filePath);
-		path.mkdirs();
-		
-		FileOutputStream out = new FileOutputStream(filePath + fileNameAndExtension, append);
-		OutputStreamWriter writer = new OutputStreamWriter(out);
-		
-		writer.write(content);
-		writer.close();
-	}
-	
-	public static String readFromFile(String filePath, String fileNameAndExtension) throws IOException{
-		return readFromFile(filePath, fileNameAndExtension, "\n");
-	}
-	
-	public static String readFromFile(String filePath, String fileNameAndExtension, String linesDivider) throws IOException{
-		StringBuilder fileText = new StringBuilder();
-		BufferedReader br = new BufferedReader(new FileReader(filePath + fileNameAndExtension));
-		String line = null;
-
-		while((line = br.readLine()) != null){
-			fileText.append(line + linesDivider);
-		}
-		br.close();
-
-		String s = new String(fileText);
-		s = s.substring(0, s.length() - 1);
-		
-		return s;
-	}
-	
-	public static void storeProperties(String filePath, String fileName, Object[] properties, Object[] values) throws FileNotFoundException, IOException{
-		Properties prop = new Properties();
-		for(int i = 0; i < properties.length; i++){
-			prop.put(properties[i], values[i]);
-		}
-		
-		File file = new File(filePath);
-		file.mkdirs();
-		
-		prop.store(new OutputStreamWriter(new FileOutputStream(filePath + fileName)), "Última foto curtida e baixada");
-	}
-	
-	public static Properties loadProperties(String filePath, String fileName) throws IOException{
-		Properties prop = new Properties();
-		
-		try{
-			File file = new File(filePath);
-			file.mkdirs();
-			prop.load(new InputStreamReader(new FileInputStream(filePath + fileName)));
-		}catch(FileNotFoundException | NullPointerException e){
-			return null;
-		}
-		
-		return prop;
 	}
 }

@@ -17,7 +17,6 @@ import br.com.dsoo.facebook.logic.Services;
 import br.com.dsoo.facebook.logic.Utils;
 import br.com.dsoo.facebook.logic.constants.Family;
 import br.com.dsoo.facebook.logic.constants.Time;
-import br.com.dsoo.facebook.logic.exceptions.TypeMismatchException;
 import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -33,9 +32,9 @@ import facebook4j.auth.AccessToken;
 
 public class User{
 
-	public static final String LAST_LIKED = "LAST_LIKED", LAST_DOWNLOADED = "LAST_DOWNLOADED";
+	public static final String LAST_LIKED = "LAST_LIKED", LAST_DOWNLOADED = "LAST_DOWNLOADED", LAST_AUTO_LIKED_POST = "LAST_AUTO_LIKED_POST";
 	
-	private final Logger logger = new Logger("User");
+	private final Logger logger;
 	
 	private String name;
 	private final Services s;
@@ -46,6 +45,7 @@ public class User{
 
 	public User(Facebook f) throws FacebookException, IOException{
 		fb = f;
+		logger = new Logger(getId(), "User");
 		friends = fb.getFriends();
 		family = fb.getFamily();
 		name = fb.getName();
@@ -56,8 +56,8 @@ public class User{
 		return s.getSettings();
 	}
 	
-	public void storeSettings() throws FileNotFoundException, IOException, FacebookException{
-		Utils.writeToFile("settings\\", "settings_" + getId() + ".xml", s.parseSettings(), false);
+	public void storeSettings() throws FileNotFoundException, IOException{
+		s.storeSettings();
 	}
 	
 	/**
@@ -68,6 +68,7 @@ public class User{
 	 */
 	public void likeAndDownloadTaggedPhotos() throws FacebookException, IOException{
 		ResponseList<Photo> photos = fb.photos().getPhotos();
+		logger.log("Fotos pesquisadas");
 		Paging<Photo> paging = null;
 		
 		ArrayList<Photo> imgsToDownload = new ArrayList<>();
@@ -75,7 +76,7 @@ public class User{
 		boolean like = getSettings().isLikePhotosWhenTagged(),
 				download = getSettings().isDownloadPhotosWhenTagged();
 		
-		Properties prop = Utils.loadProperties(getSettings().getDownloadPhotoFilePath(), "photo_log.log");
+		Properties prop = FileManager.loadProperties(getSettings().getDownloadPhotoFilePath(), FileManager.PHOTOS_LOG);
 		
 		String 	lastLikeId = "null", lastDownloadId = "null", lastLiked = "null", lastDownloaded = "null";
 		
@@ -84,32 +85,37 @@ public class User{
 			lastDownloadId = prop.getProperty(LAST_DOWNLOADED);
 		}
 		
+		String id = null;
 		while(photos != null){
 			if(like){
 				likesLoop: for(Photo photo : photos){
-					if(photo.getId().equalsIgnoreCase(lastLikeId)){
+					id = photo.getId();
+					if(id.equalsIgnoreCase(lastLikeId)){
 						like = false;
 						break likesLoop;
 					}
 					
-					fb.likePhoto(lastLiked = photo.getId());
+					fb.likePhoto(lastLiked = id);
+					logger.log("Foto curtida", id);
 				}
 			}
 			
 			if(download){
 				downloadsLoop: for(Photo photo : photos){
-					if(photo.getId().equalsIgnoreCase(lastDownloadId)){
+					id = photo.getId();
+					if(id.equalsIgnoreCase(lastDownloadId)){
 						download = false;
 						break downloadsLoop;
 					}
 					
 					imgsToDownload.add(photo);
-					lastDownloaded = photo.getId();
+					lastDownloaded = id;
 				}
 			}
 			
 			if((download || like) && (paging = photos.getPaging()) != null){
 				photos = fb.fetchNext(paging);
+				logger.log("Paginação das fotos", paging.getNext().toString());
 				continue;
 			}
 			
@@ -117,8 +123,8 @@ public class User{
 		}
 		
 		if(getSettings().getDownloadPhotoFilePath() != null){
-			Utils.storeProperties(
-					getSettings().getDownloadPhotoFilePath(), "photo_log.log",
+			FileManager.storeProperties(
+					getSettings().getDownloadPhotoFilePath(), FileManager.PHOTOS_LOG,
 					new String[]{LAST_LIKED, LAST_DOWNLOADED},
 					new String[]{lastLiked, lastDownloaded}
 					);
@@ -182,6 +188,7 @@ public class User{
 	 * @throws FacebookException
 	 */
 	public URL getUserPic() throws FacebookException{
+		logger.log("Foto do perfil do usuário carregada");
 		return fb.getPictureURL(PictureSize.normal);
 	}
 
@@ -190,17 +197,17 @@ public class User{
 	 * @return Resumo
 	 * @throws FacebookException
 	 * @throws ParseException 
-	 * @throws EmailException 
 	 * @throws IOException 
 	 * @throws MessagingException 
 	 * @throws AddressException 
-	 * @throws TypeMismatchException 
 	 */
 	public String getActivitiesReport() throws FacebookException, ParseException, AddressException, MessagingException, IOException{
 		Date since = Utils.getDateFromDifference(getSettings().getActivitiesReportSince(), Time.DAYS);
 
 		ResponseList<Post> allStatuses = fb.getStatuses((new Reading()).since(since));
+		logger.log("Pesquisados status do usuário");
 		ResponseList<Like> allPageLikes = fb.likes().getUserLikes((new Reading()).since(since));
+		logger.log("Pesquisados likes do usuário");
 
 		int statuses = 0;
 		int likes = 0;
@@ -219,6 +226,7 @@ public class User{
 
 			if((statusPaging = allStatuses.getPaging()) != null){
 				allStatuses = fb.fetchNext(statusPaging);
+				logger.log("Paginação dos status", statusPaging.getNext().toString());
 				continue;
 			}
 
@@ -236,6 +244,7 @@ public class User{
 
 			if((likePaging = allPageLikes.getPaging()) != null){
 				allPageLikes = fb.fetchNext(likePaging);
+				logger.log("Paginação dos likes", likePaging.getNext().toString());
 				continue;
 			}
 
@@ -259,16 +268,20 @@ public class User{
 	/**
 	 * @return Feed de notícias
 	 * @throws FacebookException
+	 * @throws IOException 
 	 */
-	public Post[] getNewsFeed() throws FacebookException{
+	public Post[] getNewsFeed() throws FacebookException, IOException{
 		ArrayList<Post> posts = new ArrayList<>();
 
 		boolean likeStatuses = getSettings().isLikeUsersListStatuses();
 		String[] idsToLike = getSettings().getUsersIdsToLikeStatuses();
+		Properties prop = FileManager.loadProperties(FileManager.LOGS_PATH, FileManager.getMiscLogFileName(getId()));
+		String lastAutoLikedPost = prop.getProperty(LAST_AUTO_LIKED_POST);
 		
 		int quantity = getSettings().getNewsFeedSize();
 		
 		ResponseList<Post> home = fb.getHome();
+		logger.log("Feed de notícias carregado");
 		Paging<Post> paging = null;
 
 		while(home != null){
@@ -282,8 +295,14 @@ public class User{
 							fromId = post.getFrom().getId();
 					idsLoop: for(String id : idsToLike){
 						if(id.equalsIgnoreCase(fromId)){
+							if(postId.equalsIgnoreCase(lastAutoLikedPost)){
+								likeStatuses = false;
+								break idsLoop;
+							}
+							
 							try{
 								fb.posts().likePost(postId);
+								logger.log("Post curtido", postId);
 							}catch(FacebookException e){}
 							break idsLoop;
 						}
@@ -303,6 +322,12 @@ public class User{
 			break;
 		}
 		
+		FileManager.storeProperties(
+				FileManager.LOGS_PATH,
+				FileManager.getMiscLogFileName(getId()),
+				new String[]{LAST_AUTO_LIKED_POST}, 
+				new String[]{lastAutoLikedPost});
+		
 		return posts.toArray(new Post[posts.size()]);
 	}
 	
@@ -310,6 +335,7 @@ public class User{
 		Date since = Utils.getDateFromDifference(getSettings().getAgendaSince(), Time.DAYS);
 		
 		ResponseList<Event> events = fb.getEvents((new Reading()).since(since));
+		logger.log("Eventos carregados");
 		Paging<Event> paging = null;
 		
 		ArrayList<Event> ev = new ArrayList<>();
@@ -343,7 +369,9 @@ public class User{
 	 * @throws FacebookException
 	 */
 	public String postStatusMessage(String msg) throws FacebookException{
-		return fb.postStatusMessage(msg);
+		String id = fb.postStatusMessage(msg);
+		logger.log("Atualização de status", id);
+		return id;
 	}
 
 	/**
@@ -422,9 +450,6 @@ public class User{
 
 			data += "\n\nNúmero de amigos: " + friends.size();
 
-//			if(fb.getMe().getRelationshipStatus() != null){
-//				data += "\n\nEm um relacionamento sério";
-//			}
 		}catch(IllegalStateException | FacebookException | ParseException e){
 			e.printStackTrace();
 		}

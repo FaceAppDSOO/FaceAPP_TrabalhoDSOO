@@ -32,7 +32,7 @@ public class PostPanel extends JPanel implements ActionListener{
 
 	private static final long serialVersionUID = 1L;
 	
-	private final Logger logger = new Logger("PostPanel");
+	private final Logger logger;
 	
 	private final Post post;
 	private Facebook fb;
@@ -49,6 +49,7 @@ public class PostPanel extends JPanel implements ActionListener{
 	
 	public PostPanel(Facebook fb, Post post) throws FacebookException{
 		super();
+		logger = new Logger(fb.getMe().getId(), "PostPanel");
 		this.post = post;
 		this.fb = fb;
 		URL pic = null;
@@ -127,6 +128,8 @@ public class PostPanel extends JPanel implements ActionListener{
 		setLayout(groupLayout);
 		
 		setBackground(Color.WHITE);
+		
+		logger.log("Post carregado", postId);
 	}
 
 	@Override
@@ -134,9 +137,11 @@ public class PostPanel extends JPanel implements ActionListener{
 		if(e.getSource() == btLike){
 			try{
 				if(!liked && fb.likePost(postId)){
+					logger.log("Post curtido", postId);
 					liked = true;
 					btLike.setText("Descurtir");
 				}else if(fb.unlikePost(postId)){
+					logger.log("Post descurtido", postId);
 					liked = false;
 					btLike.setText("Curtir");
 				}
