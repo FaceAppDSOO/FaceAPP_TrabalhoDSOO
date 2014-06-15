@@ -18,6 +18,7 @@ public class LoadingDialog extends JDialog{
 		bar.setIndeterminate(true);
 		p.add(bar);
 	    p.setSize(300, 75);
+	    setResizable(false);
 	    setContentPane(p);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	    pack();

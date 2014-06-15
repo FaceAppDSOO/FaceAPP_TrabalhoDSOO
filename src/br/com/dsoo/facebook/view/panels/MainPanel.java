@@ -175,7 +175,7 @@ public class MainPanel extends JPanelCustom{
 		Post[] userFeed;
 
 		try{
-			userFeed = user.getNewsFeed(20);
+			userFeed = user.getNewsFeed();
 		}catch(FacebookException e){
 			Alert.showError(e);
 			return null;

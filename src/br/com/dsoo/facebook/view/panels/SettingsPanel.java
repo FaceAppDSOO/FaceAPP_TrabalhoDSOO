@@ -2,6 +2,8 @@ package br.com.dsoo.facebook.view.panels;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -24,18 +26,29 @@ import javax.swing.event.ChangeListener;
 
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.Alert;
+import facebook4j.FacebookException;
 import facebook4j.Friend;
 
-public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyListener{
+public class SettingsPanel extends ConfigurePanel implements ChangeListener, KeyListener, ItemListener{
 
 	private static final long serialVersionUID = 1L;
 	private final JSpinner spinnerFeed, spinnerActivity, spinnerAgenda;
 	private final JTextField txtActivityEmail;
 	private final JCheckBox chkActivitySendEmail, chkLikePhotos, chkDownloadPhotos, chkLikeUserStatuses;
-	private final JButton btConfigureUsersToLikeStatuses, btConfigurePhotoDownloadPath;
+	private final JButton btConfigureUsersToLikeStatuses, btConfigurePhotoDownloadPath, btSave, btCancel;
+	
+	private String downloadPath, activityEmail;
+	private String[] friendsIds;
 
 	public SettingsPanel(User user){
 		super(user);
+		
+		btSave = new JButton("Salvar");
+		btSave.setEnabled(false);
+		btSave.addActionListener(this);
+		btCancel = new JButton("Cancelar");
+		btCancel.setEnabled(false);
+		btCancel.addActionListener(this);
 		
 		JPanel pLeft = new JPanel();
 		JLabel lblMensagensASerem = new JLabel("Quantidade de postagens do Feed");
@@ -49,9 +62,8 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 		chkLikePhotos = new JCheckBox("Curtir fotos onde \u00E9 marcado");
 		
 		chkDownloadPhotos = new JCheckBox("Baixar fotos onde \u00E9 marcado");
-		chkDownloadPhotos.setToolTipText("O download de fotos \u00E9 limitado em 25 fotos por vez!");
 		
-		chkLikeUserStatuses = new JCheckBox("Resposta autom\u00E1tica do bate-papo");
+		chkLikeUserStatuses = new JCheckBox("Curtir status de uma lista de amigos");
 		
 		btConfigureUsersToLikeStatuses = new JButton("Configurar");
 		btConfigureUsersToLikeStatuses.setFont(new Font("Tahoma", Font.PLAIN, 8));
@@ -117,13 +129,22 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 		pLeft.setLayout(gl_pLeft);
 		
 		JPanel pRight = new JPanel();
+		
 		GroupLayout groupLayout = new GroupLayout(this);
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-					.addComponent(pLeft, GroupLayout.PREFERRED_SIZE, 288, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(btSave)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(btCancel)
+							.addPreferredGap(ComponentPlacement.RELATED))
+						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+							.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(pLeft, GroupLayout.PREFERRED_SIZE, 288, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)))
 					.addComponent(pRight, GroupLayout.PREFERRED_SIZE, 286, GroupLayout.PREFERRED_SIZE)
 					.addContainerGap())
 		);
@@ -132,8 +153,13 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(pLeft, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
-						.addComponent(pRight, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE))
+						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+							.addComponent(pLeft, GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+								.addComponent(btSave)
+								.addComponent(btCancel)))
+						.addComponent(pRight, GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		
@@ -224,6 +250,8 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 		pRight.setLayout(gl_pRight);
 		setLayout(groupLayout);
 		
+		setData();
+		
 		addListeners();
 	}
 	
@@ -233,23 +261,35 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 		spinnerAgenda.addChangeListener(this);
 		spinnerFeed.addChangeListener(this);
 		
-		chkActivitySendEmail.addChangeListener(this);
+		chkActivitySendEmail.addItemListener(this);
 		txtActivityEmail.addKeyListener(this);
 		
-		chkLikePhotos.addChangeListener(this);
+		chkLikePhotos.addItemListener(this);
 
-		chkDownloadPhotos.addChangeListener(this);
+		chkDownloadPhotos.addItemListener(this);
 		btConfigurePhotoDownloadPath.addActionListener(this);
 		
-		chkLikeUserStatuses.addChangeListener(this);
+		chkLikeUserStatuses.addItemListener(this);
 		btConfigureUsersToLikeStatuses.addActionListener(this);
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e){
+		Object btn = e.getSource();
+		
+		//Salvar
+		if(btn == btSave){
+			choice = SAVE;
+			getData();
+			setChanged(false);
+		//Cancelar
+		}else if(btn == btCancel){
+			choice = CANCEL;
+			setData();
+			setChanged(false);
 		//Configurar pasta de destino
-		if(e.getSource() == btConfigurePhotoDownloadPath){
-			JFileChooser chooser = new JFileChooser(user.getSettings().getDownloadPhotoFilePath());
+		}else if(btn == btConfigurePhotoDownloadPath){
+			JFileChooser chooser = new JFileChooser(downloadPath);
 			chooser.setDialogTitle("Pasta destino");
 			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			chooser.setApproveButtonText("Selecionar");
@@ -258,13 +298,15 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 				File path = chooser.getSelectedFile();
 				path.mkdirs();
 				try{
-					user.getSettings().setDownloadPhotoFilePath(path.getCanonicalPath() + "\\");
+					downloadPath = path.getCanonicalPath() + "\\";
+					setChanged(true);
+					//user.getSettings().setDownloadPhotoFilePath(path.getCanonicalPath() + "\\");
 				}catch(IOException e1){
 					Alert.showError(e1);
 				}
 			}
 		//Configurar usuários da resposta automática
-		}else if(e.getSource() == btConfigureUsersToLikeStatuses){
+		}else if(btn == btConfigureUsersToLikeStatuses){
 			UsersChooserPanel chooser = new UsersChooserPanel(user);
 
 			showChild(chooser, "Selecionar amigos");
@@ -277,64 +319,145 @@ public class SettingsPanel extends JPanelCustom implements ChangeListener, KeyLi
 					ids += friend.getId() + ",";
 				}
 				
-				user.getSettings().setUsersIdsToLikeStatuses(ids.substring(0, ids.length() - 1).split(","));
+				friendsIds = ids.trim().substring(0, ids.length() - 1).split(",");
+				setChanged(true);
+				//user.getSettings().setUsersIdsToLikeStatuses(ids.substring(0, ids.length() - 1).trim().split(","));
 			}
 		}
 	}
 	
 	@Override
-	public void stateChanged(ChangeEvent e){
-		boolean flag = false;
-		int param = 0;
+	public void itemStateChanged(ItemEvent e){
+		setChanged(true);
 		
-		//Quantidade de postagens do Feed
-		if(e.getSource() == spinnerFeed){
-			param = (int)spinnerFeed.getValue();
-			if(param > 0)
-				user.getSettings().setNewsFeedSize(param);
-			
-		//Dias a serem pesquisados (Atividades)
-		}else if(e.getSource() == spinnerActivity){
-			param = (int)spinnerActivity.getValue();
-			if(param > 0){
-				user.getSettings().setActivitiesReportSince(param);
-			}
-			
-		//Dias a serem pesquisados (Agenda)
-		}else if(e.getSource() == spinnerAgenda){
-			param = (int)spinnerAgenda.getValue();
-			if(param > 0){
-				user.getSettings().setAgendaSince(param);
-			}
-			
-		//Enviar Resumo como e-mail
-		}else if(e.getSource() == chkActivitySendEmail){
-			flag = chkActivitySendEmail.isSelected();
-			txtActivityEmail.setEnabled(flag);
-			user.getSettings().setSendActivitiesReportEmail(flag);
-			
-		//Curtir fotos onde é marcado
-		}else if(e.getSource() == chkLikePhotos){
-			flag = chkLikePhotos.isSelected();
-			user.getSettings().setLikePhotosWhenTagged(flag);
-			
-		//Baixar fotos onde é marcado
-		}else if(e.getSource() == chkDownloadPhotos){
-			flag = chkDownloadPhotos.isSelected();
-			user.getSettings().setDownloadPhotosWhenTagged(flag);
-			
-		//Resposta automática no bate-papo
-		}else if(e.getSource() == chkLikeUserStatuses){
-			flag = chkLikeUserStatuses.isSelected();
-			user.getSettings().setLikeUsersListStatuses(flag);
-			btConfigureUsersToLikeStatuses.setEnabled(flag);
-		}
+		txtActivityEmail.setEnabled(chkActivitySendEmail.isSelected());
+		btConfigurePhotoDownloadPath.setEnabled(chkDownloadPhotos.isSelected());
+		btConfigureUsersToLikeStatuses.setEnabled(chkLikeUserStatuses.isSelected());
+	}
+	
+	@Override
+	public void stateChanged(ChangeEvent e){
+		setChanged(true);
 	}
 	
 	@Override
 	public void keyReleased(KeyEvent e){
 		if(e.getSource() == txtActivityEmail){
-			user.getSettings().setActivitiesReportEmail(txtActivityEmail.getText().trim());
+			activityEmail = txtActivityEmail.getText().trim();
+			setChanged(true);
 		}
+	}
+
+	@Override
+	public Object getData(){
+		//Variáveis auxiliares
+		boolean flag = false;
+		int param = 0;
+		
+		
+		//Quantidade de postagens do Feed
+		param = (int)spinnerFeed.getValue();
+		if(param > 0){
+			user.getSettings().setNewsFeedSize(param);
+		}
+		
+		//Dias a serem pesquisados (Atividades)
+		param = (int)spinnerActivity.getValue();
+		if(param > 0){
+			user.getSettings().setActivitiesReportSince(param);
+		}
+		
+		//Dias a serem pesquisados (Agenda)
+		param = (int)spinnerAgenda.getValue();
+		if(param > 0){
+			user.getSettings().setAgendaSince(param);
+		}
+		
+		//Enviar Resumo como e-mail
+		flag = chkActivitySendEmail.isSelected();
+		txtActivityEmail.setEnabled(flag);
+		user.getSettings().setSendActivitiesReportEmail(flag);
+		user.getSettings().setActivitiesReportEmail(activityEmail);
+		
+		//Curtir fotos onde é marcado
+		flag = chkLikePhotos.isSelected();
+		user.getSettings().setLikePhotosWhenTagged(flag);
+		
+		//Baixar fotos onde é marcado
+		flag = chkDownloadPhotos.isSelected();
+		user.getSettings().setDownloadPhotosWhenTagged(flag);
+		user.getSettings().setDownloadPhotoFilePath(downloadPath);
+		
+		//Curtir status de uma lista de amigos
+		flag = chkLikeUserStatuses.isSelected();
+		user.getSettings().setLikeUsersListStatuses(flag);
+		btConfigureUsersToLikeStatuses.setEnabled(flag);
+		user.getSettings().setUsersIdsToLikeStatuses(friendsIds);
+		
+		
+		//Armazena os dados no arquivo XML
+		try{
+			user.storeSettings();
+		}catch(IOException | FacebookException e){
+			Alert.showError(e);
+		}
+		
+		///////////////////////////////////
+		//Aqui não deve retornar nada mesmo
+		return null;
+	}
+
+	@Override
+	public void setData(){
+		//Variáveis auxiliares
+		boolean flag = false;
+		int param = 0;
+
+
+		//Quantidade de postagens do Feed
+		param = user.getSettings().getNewsFeedSize();
+		if(param > 0){
+			spinnerFeed.setValue(param);
+		}
+
+		//Dias a serem pesquisados (Atividades)
+		param = user.getSettings().getActivitiesReportSince();
+		if(param > 0){
+			spinnerActivity.setValue(param);
+		}
+
+		//Dias a serem pesquisados (Agenda)
+		param = user.getSettings().getAgendaSince();
+		if(param > 0){
+			spinnerAgenda.setValue(param);
+		}
+
+		//Enviar Resumo como e-mail
+		flag = user.getSettings().isSendActivitiesReportEmail();
+		chkActivitySendEmail.setSelected(flag);
+		txtActivityEmail.setEnabled(flag);
+		txtActivityEmail.setText(user.getSettings().getActivitiesReportEmail());
+
+		//Curtir fotos onde é marcado
+		flag = user.getSettings().isLikePhotosWhenTagged();
+		chkLikePhotos.setSelected(flag);
+
+		//Baixar fotos onde é marcado
+		flag = user.getSettings().isDownloadPhotosWhenTagged();
+		chkDownloadPhotos.setSelected(flag);
+		downloadPath = user.getSettings().getDownloadPhotoFilePath();
+
+		//Curtir status de uma lista de amigos
+		flag = user.getSettings().isLikeUsersListStatuses();
+		chkLikeUserStatuses.setSelected(flag);
+		friendsIds = user.getSettings().getUsersIdsToLikeStatuses();
+		btConfigureUsersToLikeStatuses.setEnabled(flag);
+	}
+	
+	@Override
+	void setChanged(boolean change){
+		btSave.setEnabled(change);
+		btCancel.setEnabled(change);
+		super.setChanged(change);
 	}
 }

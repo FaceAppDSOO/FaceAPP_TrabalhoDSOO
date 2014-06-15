@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+import br.com.dsoo.facebook.logic.Logger;
 import br.com.dsoo.facebook.view.Alert;
 import facebook4j.Category;
 import facebook4j.Facebook;
@@ -30,6 +31,8 @@ import facebook4j.Post;
 public class PostPanel extends JPanel implements ActionListener{
 
 	private static final long serialVersionUID = 1L;
+	
+	private final Logger logger = new Logger("PostPanel");
 	
 	private final Post post;
 	private Facebook fb;

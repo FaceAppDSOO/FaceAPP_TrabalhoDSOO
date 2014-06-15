@@ -1,5 +1,6 @@
 package br.com.dsoo.facebook.view.cellrenderers;
 
+import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JCheckBox;
@@ -18,6 +19,7 @@ public class CheckBoxListRenderer implements ListCellRenderer<Object>{
 		JCheckBox checkbox = new JCheckBox(c.getFriend().getName());
 		checkbox.setSelected(c.isSelected());
 		checkbox.setEnabled(list.isEnabled());
+		checkbox.setBackground(Color.WHITE);
         checkbox.setFocusPainted(false);
         checkbox.setBorderPainted(true);
         return checkbox;

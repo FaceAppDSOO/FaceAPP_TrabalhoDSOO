@@ -10,6 +10,7 @@ import javax.swing.JMenuItem;
 
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.Alert;
+import br.com.dsoo.facebook.view.panels.ConfigurePanel;
 import br.com.dsoo.facebook.view.panels.JPanelCustom;
 import br.com.dsoo.facebook.view.panels.MainPanel;
 import br.com.dsoo.facebook.view.panels.SettingsPanel;
@@ -70,9 +71,13 @@ public class FaceAppFrame extends JFrame implements ActionListener{
 				System.exit(DO_NOTHING_ON_CLOSE);
 			}
 		}else{
+			if(getContentPane() == settingsPanel && ((ConfigurePanel)settingsPanel).changed() &&
+				!Alert.showYesNo(this, "Alterações não salvas", "Há uma ou mais alterações não salvas. Deseja continuar?")){
+				return;
+			}
+			
 			getContentPane().setVisible(false);
 			user = ((JPanelCustom)getContentPane()).getUser();
-			getContentPane().setVisible(false);
 			
 			if(e.getSource() == faceItem){
 				mainPanel.setUser(user);

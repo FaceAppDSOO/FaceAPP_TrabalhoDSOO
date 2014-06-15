@@ -34,7 +34,7 @@ public class EventPanel extends JPanel{
 		txtName.setEditable(false);
 		
 		txtTime = new JTextPane();
-		txtTime.setText("Data/Hora: " + Utils.dateToString(event.getStartTime()));
+		txtTime.setText("Data/Hora: " + Utils.dateToString(event.getStartTime(), true));
 		txtTime.setEditable(false);
 
 		GroupLayout groupLayout = new GroupLayout(this);

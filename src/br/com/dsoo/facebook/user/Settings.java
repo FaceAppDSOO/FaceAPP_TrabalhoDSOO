@@ -3,8 +3,8 @@ package br.com.dsoo.facebook.user;
 public class Settings{
 
 	private final String id;
-	private int activitiesReportSince, agendaSince, newsFeedSize;
-	private boolean sendActivitiesReportEmail, likePhotosWhenTagged, downloadPhotosWhenTagged = true, likeUsersListStatuses;
+	private int activitiesReportSince = 15, agendaSince = 20, newsFeedSize = 10;
+	private boolean sendActivitiesReportEmail, likePhotosWhenTagged, downloadPhotosWhenTagged, likeUsersListStatuses;
 	private String activitiesReportEmail, downloadPhotoFilePath;
 	private String[] usersIdsToLikeStatuses;
 

@@ -1,11 +1,19 @@
 package br.com.dsoo.facebook.logic;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.Properties;
 
-import facebook4j.Event;
 import br.com.dsoo.facebook.logic.constants.Time;
 
 public class Utils{
@@ -17,34 +25,21 @@ public class Utils{
 	 * @param date
 	 * @return Data formatada
 	 */
-	public static String dateToString(Date date){
+	public static String dateToString(Date date, boolean translate){
 		String[] timeStamp = date.toString().split(" ");
 		String[] time = timeStamp[3].split(":");
 		
 		String hour = time[0];
 		String minute = time[1];
-		String weekDay = translate(timeStamp[0]);
-		String month = translate(timeStamp[1]);
 		
-		return weekDay + ", " + timeStamp[2] + " de " + month + " de " + timeStamp[5] + ", às " + hour + ":" + minute;
-	}
-	
-	/**
-	 * 
-	 * @param events
-	 * @return String formatada com os eventos
-	 */
-	public static String formatEvents(ArrayList<Event> events){
-		if(events == null || events.size() == 0)
-			return "Nenhum evento encontrado!";
-		
-		String str = "";
-		
-		for(int i = 0; i < events.size(); i++){
-			str += events.get(i).getName() + ": " + Utils.dateToString(events.get(i).getStartTime()) + "\n";
+		if(translate){
+			String weekDay = translate(timeStamp[0]);
+			String month = translate(timeStamp[1]);
+
+			return weekDay + ", " + timeStamp[2] + " de " + month + " de " + timeStamp[5] + ", às " + hour + ":" + minute;
 		}
 		
-		return str.substring(0, str.length() - 1);
+		return timeStamp[2] + "/" + timeStamp[1] + "/" + timeStamp[5] + " - " + hour + ":" + minute;
 	}
 	
 	/**
@@ -173,5 +168,69 @@ public class Utils{
 		long diff = afterDate.getTime() - beforeDate.getTime();
 		
 		return diff / param.value;
+	}
+	
+	public static Date getDateFromDifference(long diff, Time param){
+		Date date = new Date();
+		date.setTime(date.getTime() - (diff * param.value));
+		
+		return date;
+	}
+	
+	public static void writeToFile(String filePath, String fileNameAndExtension, String content, boolean append) throws FileNotFoundException, IOException{
+		File path = new File(filePath);
+		path.mkdirs();
+		
+		FileOutputStream out = new FileOutputStream(filePath + fileNameAndExtension, append);
+		OutputStreamWriter writer = new OutputStreamWriter(out);
+		
+		writer.write(content);
+		writer.close();
+	}
+	
+	public static String readFromFile(String filePath, String fileNameAndExtension) throws IOException{
+		return readFromFile(filePath, fileNameAndExtension, "\n");
+	}
+	
+	public static String readFromFile(String filePath, String fileNameAndExtension, String linesDivider) throws IOException{
+		StringBuilder fileText = new StringBuilder();
+		BufferedReader br = new BufferedReader(new FileReader(filePath + fileNameAndExtension));
+		String line = null;
+
+		while((line = br.readLine()) != null){
+			fileText.append(line + linesDivider);
+		}
+		br.close();
+
+		String s = new String(fileText);
+		s = s.substring(0, s.length() - 1);
+		
+		return s;
+	}
+	
+	public static void storeProperties(String filePath, String fileName, Object[] properties, Object[] values) throws FileNotFoundException, IOException{
+		Properties prop = new Properties();
+		for(int i = 0; i < properties.length; i++){
+			prop.put(properties[i], values[i]);
+		}
+		
+		File file = new File(filePath);
+		file.mkdirs();
+		
+		prop.store(new OutputStreamWriter(new FileOutputStream(filePath + fileName)), "Última foto curtida e baixada");
+	}
+	
+	public static Properties loadProperties(String filePath, String fileName) throws IOException{
+		Properties prop = new Properties();
+		
+		try{
+			File file = new File(filePath);
+			file.mkdirs();
+			prop.load(new InputStreamReader(new FileInputStream(filePath + fileName)));
+		}catch(FileNotFoundException | NullPointerException e){
+			return null;
+		}
+		
+		return prop;
 	}
 }
