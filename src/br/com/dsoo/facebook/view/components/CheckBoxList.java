@@ -7,19 +7,18 @@ import java.util.ArrayList;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 
-import br.com.dsoo.facebook.view.adapters.CheckBoxFriend;
 import br.com.dsoo.facebook.view.cellrenderers.CheckBoxListRenderer;
 import facebook4j.Friend;
 
-public class CheckBoxList extends JList<CheckBoxFriend> implements MouseListener{
+public class CheckBoxList extends JList<CheckBoxList.CheckBoxFriend> implements MouseListener{
 
 	private static final long serialVersionUID = 1L;
 	
 	public CheckBoxList(Friend[] friends){
-		CheckBoxFriend[] check = new CheckBoxFriend[friends.length];
+		CheckBoxList.CheckBoxFriend[] check = new CheckBoxList.CheckBoxFriend[friends.length];
 		
 		for(int i = 0; i < friends.length; i++){
-			check[i] = new CheckBoxFriend(friends[i]);
+			check[i] = new CheckBoxList.CheckBoxFriend(friends[i]);
 		}
 		
 		setListData(check);
@@ -35,8 +34,8 @@ public class CheckBoxList extends JList<CheckBoxFriend> implements MouseListener
 		for(int i = 0; i < getModel().getSize(); i++){
 			Object item = getModel().getElementAt(i);
 			
-			if(((CheckBoxFriend)item).isSelected()){
-				selectedFriends.add(((CheckBoxFriend)item).getFriend());
+			if(((CheckBoxList.CheckBoxFriend)item).isSelected()){
+				selectedFriends.add(((CheckBoxList.CheckBoxFriend)item).getFriend());
 			}
 		}
 
@@ -48,7 +47,7 @@ public class CheckBoxList extends JList<CheckBoxFriend> implements MouseListener
 		int index = locationToIndex(e.getPoint());
 
 		if(index != -1){
-			CheckBoxFriend c = (CheckBoxFriend)getModel().getElementAt(index);
+			CheckBoxList.CheckBoxFriend c = (CheckBoxList.CheckBoxFriend)getModel().getElementAt(index);
 			c.setSelected(!c.isSelected());
 			repaint();
 		}
@@ -58,4 +57,26 @@ public class CheckBoxList extends JList<CheckBoxFriend> implements MouseListener
 	@Override public void mouseReleased(MouseEvent e){}
 	@Override public void mouseEntered(MouseEvent e){}
 	@Override public void mouseExited(MouseEvent e){}
+	
+	public static class CheckBoxFriend{
+		private final Friend friend;
+		private boolean selected;
+
+		public CheckBoxFriend(Friend friend){
+			this.friend = friend;
+			selected = false;
+		}
+
+		public boolean isSelected(){
+			return selected;
+		}
+
+		public void setSelected(boolean selected){
+			this.selected = selected;
+		}
+
+		public Friend getFriend(){
+			return friend;
+		}
+	}
 }

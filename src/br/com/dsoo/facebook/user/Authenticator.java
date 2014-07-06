@@ -117,38 +117,4 @@ public class Authenticator{
 			token = tkn;
 		}
 	}
-
-	/*
-	 * Classes de comunicação com o servidor para requests
-	 */
-	class SigningServlet extends HttpServlet{
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-			Facebook facebook = new FacebookFactory().getInstance();
-			request.getSession().setAttribute("facebook", facebook);
-			StringBuffer callbackURL = request.getRequestURL();
-			int index = callbackURL.lastIndexOf("/");
-			callbackURL.replace(index, callbackURL.length(), "").append("/callback");
-			response.sendRedirect(facebook.getOAuthAuthorizationURL(callbackURL.toString()));
-		}
-	}
-	
-	class CallbackServlet extends HttpServlet{
-
-		private static final long serialVersionUID = 1L;
-		
-		@Override
-	    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	        Facebook facebook = (Facebook) request.getSession().getAttribute("facebook");
-	        String oauthCode = request.getParameter("code");
-	        try {
-	            facebook.getOAuthAccessToken(oauthCode);
-	        } catch (FacebookException e) {
-	            throw new ServletException(e);
-	        }
-	        response.sendRedirect(request.getContextPath() + "/");
-	    }
-	}
 }

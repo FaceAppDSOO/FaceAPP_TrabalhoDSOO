@@ -14,25 +14,37 @@ import javax.mail.internet.AddressException;
 
 import br.com.dsoo.facebook.logic.Logger;
 import br.com.dsoo.facebook.logic.Services;
-import br.com.dsoo.facebook.logic.Utils;
 import br.com.dsoo.facebook.logic.constants.Family;
 import br.com.dsoo.facebook.logic.constants.Time;
+import br.com.dsoo.facebook.logic.utils.Pager;
+import br.com.dsoo.facebook.logic.utils.Utils;
+import facebook4j.Comment;
 import facebook4j.Event;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.Friend;
+import facebook4j.InboxResponseList;
 import facebook4j.Like;
+import facebook4j.Message;
 import facebook4j.Paging;
 import facebook4j.Photo;
 import facebook4j.PictureSize;
 import facebook4j.Post;
+import facebook4j.PostUpdate;
+import facebook4j.PrivacyBuilder;
+import facebook4j.PrivacyParameter;
+import facebook4j.PrivacyType;
 import facebook4j.Reading;
 import facebook4j.ResponseList;
 import facebook4j.auth.AccessToken;
 
 public class User{
 
-	public static final String LAST_LIKED = "LAST_LIKED", LAST_DOWNLOADED = "LAST_DOWNLOADED", LAST_AUTO_LIKED_POST = "LAST_AUTO_LIKED_POST";
+	public static final String
+			LAST_LIKED = "LAST_LIKED",
+			LAST_DOWNLOADED = "LAST_DOWNLOADED",
+			LAST_AUTO_LIKED_POST = "LAST_AUTO_LIKED_POST",
+			ALREADY_ANSWERED = "ALREADY_ANSWERED";
 	
 	private final Logger logger;
 	
@@ -42,14 +54,73 @@ public class User{
 	private Facebook fb;
 	private ResponseList<Friend> friends;
 	private ResponseList<facebook4j.Family> family;
+	
+	private Pager pager;
 
 	public User(Facebook f) throws FacebookException, IOException{
 		fb = f;
+		pager = new Pager(f);
 		logger = new Logger(getId(), "User");
-		friends = fb.getFriends();
-		family = fb.getFamily();
-		name = fb.getName();
+		friends = Utils.doOrderAlphabetically(f.getFriends());
+		family = f.getFamily();
+		name = f.getName();
 		s = new Services(getId());
+	}
+	
+	public void verifyInbox() throws FacebookException, IOException{
+		InboxResponseList<Message> inbox = fb.getInbox();
+		
+		Properties prop = FileManager.loadProperties(FileManager.LOGS_PATH, FileManager.getMiscLogFileName(getId()));
+		
+		String answereds = "";
+		if(prop != null){
+			answereds = prop.getProperty(ALREADY_ANSWERED, "");
+		}
+		
+		PostUpdate post = null;
+
+		PrivacyParameter privacy = new PrivacyBuilder().setValue(PrivacyType.CUSTOM).build();
+
+		String 	answer = getSettings().getChatAutomaticAnswer();
+		Comment comment = null;
+		
+		if(inbox != null){
+			for(Message msg : inbox){
+				if(msg.getUnread() > 0){
+					post = new PostUpdate(answer);
+					
+					comment = pager.getLast(msg.getComments());
+					if(answereds.contains(comment.getId())){
+						continue;
+					}
+					
+					privacy.setFriends(msg.getTo().get(0).getId());
+					post.setPrivacy(privacy);
+					
+					String id;
+					
+					try{
+						id = fb.postFeed(post);
+					}catch(FacebookException e){
+						logger.log("Mensagem já respondida", comment.getId());
+						continue;
+					}
+					
+					logger.log("Postagem privativa feita", id);
+					
+					answereds += comment.getId() + ",";
+				}
+			}
+			
+			if(answereds.length() > 0){
+				FileManager.storeProperties(
+						FileManager.LOGS_PATH,
+						FileManager.getMiscLogFileName(getId()),
+						new String[]{ALREADY_ANSWERED},
+						new String[]{answereds.substring(0,  answereds.length() - 1)}
+						);
+			}
+		}
 	}
 
 	public Settings getSettings(){
@@ -81,8 +152,8 @@ public class User{
 		String 	lastLikeId = "null", lastDownloadId = "null", lastLiked = "null", lastDownloaded = "null";
 		
 		if(prop != null){
-			lastLikeId = prop.getProperty(LAST_LIKED);
-			lastDownloadId = prop.getProperty(LAST_DOWNLOADED);
+			lastLikeId = prop.getProperty(LAST_LIKED, "null");
+			lastDownloadId = prop.getProperty(LAST_DOWNLOADED, "null");
 		}
 		
 		String id = null;
@@ -272,13 +343,21 @@ public class User{
 	 */
 	public Post[] getNewsFeed() throws FacebookException, IOException{
 		ArrayList<Post> posts = new ArrayList<>();
+		
+		int quantity = getSettings().getNewsFeedSize();
+		
+		if(quantity == 0)
+			return new Post[0];
 
 		boolean likeStatuses = getSettings().isLikeUsersListStatuses();
 		String[] idsToLike = getSettings().getUsersIdsToLikeStatuses();
 		Properties prop = FileManager.loadProperties(FileManager.LOGS_PATH, FileManager.getMiscLogFileName(getId()));
-		String lastAutoLikedPost = prop.getProperty(LAST_AUTO_LIKED_POST);
 		
-		int quantity = getSettings().getNewsFeedSize();
+		String lastAutoLikedPost = "null";
+		
+		if(prop != null){
+			lastAutoLikedPost = prop.getProperty(LAST_AUTO_LIKED_POST);
+		}
 		
 		ResponseList<Post> home = fb.getHome();
 		logger.log("Feed de notícias carregado");

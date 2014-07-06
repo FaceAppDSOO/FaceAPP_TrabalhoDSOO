@@ -27,30 +27,7 @@ public class FaceApp {
 				System.exit(0);
 			}
 		}while(user == null || !user.isAuthenticated());
-		
-//		Ui ui = new Ui();
-//
-//		do{
-//			try{
-//				user = new User(auth.authenticate());
-//			}catch(FacebookException e1){
-//				e1.printStackTrace();
-//			}catch(AuthenticationFailedException e){
-//				ui.show(e.getMessage());
-//			}catch(IOException e){
-//				ui.show(e.getMessage());
-//			}
-//		}while(!user.isAuthenticated());
-//		
-//		try{
-//			ui.showOptions(user);
-//		}catch(IllegalStateException | FacebookException | ParseException | MessagingException | IOException e){
-//			ui.show(e.getMessage());
-//		}finally{
-//			user.logout();
-//			System.exit(0);
-//		}
-		
+				
 	}
 
 }

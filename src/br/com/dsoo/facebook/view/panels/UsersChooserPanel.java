@@ -5,13 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.GroupLayout;
-import javax.swing.JButton;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import br.com.dsoo.facebook.user.User;
-import br.com.dsoo.facebook.view.adapters.CheckBoxFriend;
 import br.com.dsoo.facebook.view.components.CheckBoxList;
 import facebook4j.Friend;
 import facebook4j.ResponseList;
@@ -96,9 +95,9 @@ public class UsersChooserPanel extends ConfigurePanel{
 		if(ids.size() == 0)
 			return;
 		
-		CheckBoxFriend friend = null;
+		CheckBoxList.CheckBoxFriend friend = null;
 		for(int i = 0; i < checkList.getModel().getSize(); i++){
-			friend = (CheckBoxFriend)checkList.getModel().getElementAt(i);
+			friend = (CheckBoxList.CheckBoxFriend)checkList.getModel().getElementAt(i);
 			
 			idsLoop: for(int j = 0; j < ids.size(); j++){
 				if(friend.getFriend().getId().equalsIgnoreCase(ids.get(j))){

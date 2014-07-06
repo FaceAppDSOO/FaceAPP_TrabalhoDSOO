@@ -4,8 +4,8 @@ public class Settings{
 
 	private final String id;
 	private int activitiesReportSince = 15, agendaSince = 20, newsFeedSize = 10;
-	private boolean sendActivitiesReportEmail, likePhotosWhenTagged, downloadPhotosWhenTagged, likeUsersListStatuses;
-	private String activitiesReportEmail, downloadPhotoFilePath;
+	private boolean sendActivitiesReportEmail, likePhotosWhenTagged, downloadPhotosWhenTagged, likeUsersListStatuses, enableChatAutomaticAnswer;
+	private String activitiesReportEmail, downloadPhotoFilePath, chatAutomaticAnswer;
 	private String[] usersIdsToLikeStatuses;
 
 
@@ -95,5 +95,21 @@ public class Settings{
 
 	public void setDownloadPhotoFilePath(String downloadPhotoFilePath){
 		this.downloadPhotoFilePath = downloadPhotoFilePath;
+	}
+
+	public boolean isEnableChatAutomaticAnswer(){
+		return enableChatAutomaticAnswer;
+	}
+
+	public void setEnableChatAutomaticAnswer(boolean enableChatAutomaticAnswer){
+		this.enableChatAutomaticAnswer = enableChatAutomaticAnswer;
+	}
+
+	public String getChatAutomaticAnswer(){
+		return chatAutomaticAnswer;
+	}
+
+	public void setChatAutomaticAnswer(String chatAutomaticAnswer){
+		this.chatAutomaticAnswer = chatAutomaticAnswer;
 	}
 }

@@ -3,6 +3,7 @@ package br.com.dsoo.facebook.logic;
 import java.io.IOException;
 import java.util.Date;
 
+import br.com.dsoo.facebook.logic.utils.Utils;
 import br.com.dsoo.facebook.user.FileManager;
 
 public class Logger{

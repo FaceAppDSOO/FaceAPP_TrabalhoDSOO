@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-import br.com.dsoo.facebook.logic.Utils;
+import br.com.dsoo.facebook.logic.utils.Utils;
 import facebook4j.Event;
 
 public class EventPanel extends JPanel{

@@ -6,9 +6,12 @@ import java.awt.Dimension;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 import javafx.scene.input.MouseButton;
 
@@ -26,6 +29,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingWorker;
 import javax.swing.border.EtchedBorder;
 
 import br.com.dsoo.facebook.user.User;
@@ -34,11 +38,13 @@ import facebook4j.Event;
 import facebook4j.FacebookException;
 import facebook4j.Post;
 
-public class MainPanel extends JPanelCustom{
+public class MainPanel extends JPanelCustom implements PropertyChangeListener{
 
 	private static final long serialVersionUID = 1L;
+	
+	private final NewsFeedLoader newsFeedLoader = new NewsFeedLoader();
 
-	private JLabel userName, activityReportLabel, agendaLabel, userPic;
+	private JLabel userName, activityReportLabel, agendaLabel, userPic, lbLoading = new JLabel("Carregando...");
 	private JButton btPost;
 	private JPanel userPanel;
 	private JScrollPane container;
@@ -50,6 +56,8 @@ public class MainPanel extends JPanelCustom{
 	public MainPanel(User user) throws FacebookException{
 		super(user);
 		showLoading();
+		
+		lbLoading.setVisible(false);
 		
 		try{
 			user.likeAndDownloadTaggedPhotos();
@@ -70,8 +78,9 @@ public class MainPanel extends JPanelCustom{
 		btPost = new JButton("Nova postagem");
 		
 		userPanel = new JPanel();
-		container = new JScrollPane(loadUserFeed());
+		container = new JScrollPane();
 		container.setViewportBorder(null);
+		loadUserFeed();
 		
 		feedPopupMenu = new JPopupMenu("Feed de notícias");
 		refreshItem = new JMenuItem("Recarregar");
@@ -90,18 +99,23 @@ public class MainPanel extends JPanelCustom{
 					.addComponent(userPanel, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-						.addComponent(container, GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
-						.addComponent(btPost))
+						.addComponent(container, GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addComponent(lbLoading)
+							.addPreferredGap(ComponentPlacement.RELATED, 268, Short.MAX_VALUE)
+							.addComponent(btPost)))
 					.addGap(6))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addComponent(userPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(userPanel, GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(btPost)
+					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(btPost)
+						.addComponent(lbLoading))
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(container, GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
+					.addComponent(container, GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
 					.addGap(6))
 		);
 		
@@ -150,7 +164,7 @@ public class MainPanel extends JPanelCustom{
 	}
 	
 	@Override
-	void addListeners(){
+	protected void addListeners(){
 		
 		btPost.addActionListener(this);
 		userName.addMouseListener(this);
@@ -163,32 +177,13 @@ public class MainPanel extends JPanelCustom{
 	}
 	
 	public void initializeNewsFeed(){
-		container.setViewportView(loadUserFeed());
-		container.setViewportBorder(null);
+		loadUserFeed();
 	}
 
-	private ListItemPanel loadUserFeed(){
-		ListItemPanel panel = new ListItemPanel();
-		panel.setBorder(null);
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		
-		Post[] userFeed;
-
-		try{
-			userFeed = user.getNewsFeed();
-		}catch(FacebookException | IOException e){
-			Alert.showError(e);
-			return null;
-		}
-		
-		for(Post post : userFeed){
-			try{
-				panel.add(new PostPanel(user.getAccount(), post));
-				panel.add(Box.createRigidArea(new Dimension(10, 10)));
-			}catch(FacebookException e){}
-		}
-		
-		return panel;
+	private void loadUserFeed(){
+		newsFeedLoader.execute();
+		newsFeedLoader.addPropertyChangeListener(this);
+		lbLoading.setVisible(true);
 	}
 
 	@Override
@@ -206,9 +201,7 @@ public class MainPanel extends JPanelCustom{
 			}
 		//Botão direito no feed
 		}else if(e.getSource() == refreshItem){
-			showLoading();
 			initializeNewsFeed();
-			hideLoading();
 		}
 	}
 
@@ -217,7 +210,7 @@ public class MainPanel extends JPanelCustom{
 		Component comp = e.getComponent();
 		
 		if(e.getButton() == MouseButton.SECONDARY.ordinal()){
-			if(comp == container){
+			if(comp == container || comp instanceof PostPanel){
 				doPop(feedPopupMenu, e);
 			}
 		}else if(comp == userName || comp == activityReportLabel || comp == agendaLabel){
@@ -270,9 +263,54 @@ public class MainPanel extends JPanelCustom{
 		
 		return panel;
 	}
-
+	
 	@Override
-	void doPop(JPopupMenu menu, MouseEvent e){
-		menu.show(e.getComponent(), e.getX(), e.getY());
+	public void propertyChange(PropertyChangeEvent evt){
+		if(evt.getSource() instanceof NewsFeedLoader){
+			if(evt.getPropertyName().equalsIgnoreCase(NewsFeedLoader.PROPERTY_STATE)){
+				if(newsFeedLoader.getState().equals(SwingWorker.StateValue.DONE)){
+					try{
+						container.setViewportView(newsFeedLoader.get());
+						container.setViewportBorder(null);
+						container.setBorder(null);
+						lbLoading.setVisible(false);
+					}catch(InterruptedException e){
+					}catch(ExecutionException ex){
+						Alert.showError(ex);
+					}
+				}
+			}
+		}
+	}
+	
+	private class NewsFeedLoader extends SwingWorker<ListItemPanel, Void>{
+
+		public static final String PROPERTY_STATE = "state";
+		
+		@Override
+		protected ListItemPanel doInBackground() throws Exception{
+			ListItemPanel panel = new ListItemPanel();
+			panel.setBorder(null);
+			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+			
+			Post[] userFeed;
+
+			try{
+				userFeed = user.getNewsFeed();
+			}catch(FacebookException | IOException e){
+				Alert.showError(e);
+				return null;
+			}
+			
+			for(Post post : userFeed){
+				try{
+					panel.add(new PostPanel(user.getAccount(), post));
+					panel.add(Box.createRigidArea(new Dimension(10, 10)));
+				}catch(FacebookException e){}
+				Thread.sleep(500);
+			}
+			
+			return panel;
+		}
 	}
 }

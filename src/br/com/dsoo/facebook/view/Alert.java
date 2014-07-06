@@ -17,6 +17,8 @@ public class Alert extends JOptionPane{
 	}
 	
 	private static final long serialVersionUID = 1L;
+	
+	public static final String ERRO_FILHO_DA_PUTA = "#613";
 
 	private static Clipboard clipboard;
 	private static StringSelection selection;
@@ -34,7 +36,9 @@ public class Alert extends JOptionPane{
 	}
 	
 	public static void showError(Exception e){
-		showError(e.getMessage());
+		if(!e.getMessage().contains(ERRO_FILHO_DA_PUTA)){
+			showError(e.getMessage());
+		}
 	}
 	
 	public static void showError(String error){

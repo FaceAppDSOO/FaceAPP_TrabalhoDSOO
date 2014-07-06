@@ -2,11 +2,13 @@ package br.com.dsoo.facebook.view.frames;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.Timer;
 
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.Alert;
@@ -26,6 +28,9 @@ public class FaceAppFrame extends JFrame implements ActionListener{
 	
 	private User user;
 	
+	private ChatListener chatListener = new ChatListener();
+	private Timer timer;
+	
 	public FaceAppFrame(User user) throws FacebookException{
 		super("FaceApp");
 		this.user = user;
@@ -40,6 +45,8 @@ public class FaceAppFrame extends JFrame implements ActionListener{
 		
 		setResizable(false);
 		setVisible(true);
+		
+		initChatListener();
 	}
 	
 	private void setForm() throws FacebookException{
@@ -93,5 +100,29 @@ public class FaceAppFrame extends JFrame implements ActionListener{
 			pack();
 		}
 	}
+	
+	private void initChatListener(){
+		if(!user.getSettings().isEnableChatAutomaticAnswer()
+		|| user.getSettings().getChatAutomaticAnswer() == null
+		|| user.getSettings().getChatAutomaticAnswer() == "")
+			return;
+		
+		timer = new Timer(1000, chatListener);
+		timer.setRepeats(true);
+		timer.start();
+	}
 
+	private class ChatListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e){
+			try{
+				user.verifyInbox();
+			}catch(FacebookException | IOException e1){
+				Alert.showError(e1);
+			}
+		}
+		
+	}
+	
 }

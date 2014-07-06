@@ -25,15 +25,15 @@ public abstract class JPanelCustom extends JPanel implements ActionListener, Mou
 
 	private static final long serialVersionUID = 1L;
 	
-	LoadingDialog loading;
-	User user;
+	protected LoadingDialog loading;
+	protected User user;
 	
 	public JPanelCustom(User user){
 		super();
 		this.user = user;
 	}
 	
-	Container findParent(){
+	protected Container findParent(){
 		Container parent = getParent();
 		if(parent != null){
 			parent = parent.getParent();
@@ -45,13 +45,13 @@ public abstract class JPanelCustom extends JPanel implements ActionListener, Mou
 		return parent;
 	}
 	
-	void showLoading(){
+	protected void showLoading(){
 		Container parent = findParent();
 
 		loading = new LoadingDialog(parent == null ? null : (JFrame)parent, "Carregando...");
 	}
 	
-	void closeParent(){
+	protected void closeParent(){
 		Container parent = findParent();
 		WindowEvent wev = null;
 		if(parent instanceof JFrame){			
@@ -62,7 +62,7 @@ public abstract class JPanelCustom extends JPanel implements ActionListener, Mou
         Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(wev);
 	}
 	
-	void hideLoading(){
+	protected void hideLoading(){
 		if(loading != null){
 			loading.setVisible(false);
 			loading = null;
@@ -119,6 +119,10 @@ public abstract class JPanelCustom extends JPanel implements ActionListener, Mou
 		dialog.setVisible(true);
 	}
 
+	protected void doPop(JPopupMenu menu, MouseEvent e){
+		menu.show(e.getComponent(), e.getX(), e.getY());
+	}
+	
 	@Override public void actionPerformed(ActionEvent e){}
 	
 	@Override public void mouseEntered(MouseEvent e){}
@@ -131,6 +135,5 @@ public abstract class JPanelCustom extends JPanel implements ActionListener, Mou
 	@Override public void keyReleased(KeyEvent e){}
 	@Override public void keyTyped(KeyEvent e){}
 
-	void addListeners(){}
-	void doPop(JPopupMenu menu, MouseEvent e){}
+	protected void addListeners(){}
 }

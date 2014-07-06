@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.border.EtchedBorder;
 
 import br.com.dsoo.facebook.logic.Logger;
 import br.com.dsoo.facebook.view.Alert;
@@ -73,12 +74,14 @@ public class PostPanel extends JPanel implements ActionListener{
 		if(to.size() > 1){
 			toName.setText(" - ...");
 
-			String tip = "";
+			String tip = "<html>";
 			for(IdNameEntity person : to){
-				tip += person.getName() + "\n";
+				tip += person.getName() + "<br>";
 			}
+			
+			tip = tip.substring(0, tip.length() - 4) + "</html>";
 
-			toName.setToolTipText(tip.substring(0, tip.length() - 2));
+			toName.setToolTipText(tip);
 		}else if(to.size() == 1){
 			toName.setText(" - " + to.get(0).getName());
 		}
@@ -127,6 +130,7 @@ public class PostPanel extends JPanel implements ActionListener{
 		);
 		setLayout(groupLayout);
 		
+		setBorder(new EtchedBorder());
 		setBackground(Color.WHITE);
 		
 		logger.log("Post carregado", postId);
@@ -155,6 +159,8 @@ public class PostPanel extends JPanel implements ActionListener{
 		PagableList<Like> likes = post.getLikes();
 		String myId = fb.getMe().getId();
 		
+		int secCounter = 0;
+		
 		Paging<Like> paging = likes.getPaging();
 		while(likes != null){
 			for(Like like : likes){
@@ -164,6 +170,9 @@ public class PostPanel extends JPanel implements ActionListener{
 			}
 			
 			if((paging = likes.getPaging()) != null){
+				if(secCounter++ == 100) //SÓ PRA NÃO FICAR NESSE LAÇO POR UMA ETERNIDADE
+					break;
+				
 				likes = fb.fetchNext(paging);
 				continue;
 			}

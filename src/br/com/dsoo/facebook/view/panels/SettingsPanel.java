@@ -1,5 +1,6 @@
 package br.com.dsoo.facebook.view.panels;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
@@ -16,16 +17,22 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import br.com.dsoo.facebook.user.FileManager;
 import br.com.dsoo.facebook.user.User;
 import br.com.dsoo.facebook.view.Alert;
+import facebook4j.FacebookException;
 import facebook4j.Friend;
 
 public class SettingsPanel extends ConfigurePanel implements ChangeListener, KeyListener, ItemListener{
@@ -33,10 +40,11 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 	private static final long serialVersionUID = 1L;
 	private final JSpinner spinnerFeed, spinnerActivity, spinnerAgenda;
 	private final JTextField txtActivityEmail;
-	private final JCheckBox chkActivitySendEmail, chkLikePhotos, chkDownloadPhotos, chkLikeUserStatuses;
+	private final JCheckBox chkActivitySendEmail, chkLikePhotos, chkDownloadPhotos, chkLikeUserStatuses, chkChatAutomaticAnswer;
 	private final JButton btConfigureUsersToLikeStatuses, btConfigurePhotoDownloadPath, btSave, btCancel;
+	private JTextPane txtChatAutomaticAnswer, txtSystemLog;
 	
-	private String downloadPath, activityEmail;
+	private String downloadPath, activityEmail, chatAutomaticAnswer;
 	private String[] friendsIds;
 
 	public SettingsPanel(User user){
@@ -53,6 +61,7 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 		JLabel lblMensagensASerem = new JLabel("Quantidade de postagens do Feed");
 
 		spinnerFeed = new JSpinner();
+		spinnerFeed.setModel(new SpinnerNumberModel(new Integer(20), new Integer(0), null, new Integer(1)));
 		spinnerFeed.setValue(20);
 		
 		JPanel panel_2 = new JPanel();
@@ -72,34 +81,70 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 		btConfigurePhotoDownloadPath.setToolTipText("Configurar pasta de destino");
 		btConfigurePhotoDownloadPath.setFont(new Font("Tahoma", Font.PLAIN, 9));
 		
+		chkChatAutomaticAnswer = new JCheckBox("Resposta autom\u00E1tica do bate-papo");
+		
+		JSeparator 	separator = new JSeparator();
+		
+		JLabel lblResposta = new JLabel("Resposta");
+		
+		txtChatAutomaticAnswer = new JTextPane();
+		
+		JSeparator separator_2 = new JSeparator();
+		
 		GroupLayout gl_panel_2 = new GroupLayout(panel_2);
 		gl_panel_2.setHorizontalGroup(
 			gl_panel_2.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_2.createSequentialGroup()
-					.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING, false)
+					.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING)
 						.addComponent(chkLikePhotos)
-						.addGroup(gl_panel_2.createSequentialGroup()
-							.addComponent(chkDownloadPhotos)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btConfigurePhotoDownloadPath, 0, 0, Short.MAX_VALUE))
+						.addComponent(chkDownloadPhotos)
 						.addComponent(chkLikeUserStatuses)
+						.addComponent(btConfigureUsersToLikeStatuses)
+						.addComponent(chkChatAutomaticAnswer)
 						.addGroup(gl_panel_2.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(btConfigureUsersToLikeStatuses)))
-					.addContainerGap(21, Short.MAX_VALUE))
+							.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING, false)
+								.addGroup(gl_panel_2.createParallelGroup(Alignment.TRAILING, false)
+									.addGroup(gl_panel_2.createSequentialGroup()
+										.addComponent(lblResposta)
+										.addGap(224))
+									.addGroup(gl_panel_2.createSequentialGroup()
+										.addComponent(separator_2, GroupLayout.PREFERRED_SIZE, 276, GroupLayout.PREFERRED_SIZE)
+										.addGap(20)))
+								.addComponent(separator, GroupLayout.PREFERRED_SIZE, 276, GroupLayout.PREFERRED_SIZE)
+								.addGroup(Alignment.TRAILING, gl_panel_2.createSequentialGroup()
+									.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+									.addComponent(txtChatAutomaticAnswer, GroupLayout.PREFERRED_SIZE, 241, GroupLayout.PREFERRED_SIZE)
+									.addGap(28)))
+							.addGap(83)
+							.addComponent(btConfigurePhotoDownloadPath, 0, 0, Short.MAX_VALUE)))
+					.addContainerGap())
 		);
 		gl_panel_2.setVerticalGroup(
 			gl_panel_2.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_2.createSequentialGroup()
 					.addComponent(chkLikePhotos)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_panel_2.createParallelGroup(Alignment.BASELINE)
-						.addComponent(chkDownloadPhotos)
-						.addComponent(btConfigurePhotoDownloadPath))
-					.addPreferredGap(ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+					.addComponent(chkDownloadPhotos)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(separator, GroupLayout.PREFERRED_SIZE, 2, GroupLayout.PREFERRED_SIZE)
+					.addGap(4)
 					.addComponent(chkLikeUserStatuses)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btConfigureUsersToLikeStatuses))
+					.addComponent(btConfigureUsersToLikeStatuses)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(separator_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(chkChatAutomaticAnswer)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(lblResposta)
+					.addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_panel_2.createSequentialGroup()
+							.addGap(12)
+							.addComponent(btConfigurePhotoDownloadPath))
+						.addGroup(gl_panel_2.createSequentialGroup()
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(txtChatAutomaticAnswer, GroupLayout.DEFAULT_SIZE, 46, Short.MAX_VALUE)
+							.addContainerGap())))
 		);
 		panel_2.setLayout(gl_panel_2);
 		
@@ -111,7 +156,7 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 						.addGroup(gl_pLeft.createSequentialGroup()
 							.addComponent(lblMensagensASerem)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(spinnerFeed, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+							.addComponent(spinnerFeed, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE))
 						.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 290, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
@@ -122,8 +167,8 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 						.addComponent(lblMensagensASerem)
 						.addComponent(spinnerFeed, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(229, Short.MAX_VALUE))
+					.addComponent(panel_2, GroupLayout.PREFERRED_SIZE, 232, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(91, Short.MAX_VALUE))
 		);
 		pLeft.setLayout(gl_pLeft);
 		
@@ -133,17 +178,14 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
+					.addContainerGap()
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addComponent(pLeft, GroupLayout.PREFERRED_SIZE, 288, GroupLayout.PREFERRED_SIZE)
 						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
 							.addComponent(btSave)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btCancel)
-							.addPreferredGap(ComponentPlacement.RELATED))
-						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-							.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-							.addComponent(pLeft, GroupLayout.PREFERRED_SIZE, 288, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)))
+							.addComponent(btCancel)))
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(pRight, GroupLayout.PREFERRED_SIZE, 286, GroupLayout.PREFERRED_SIZE)
 					.addContainerGap())
 		);
@@ -151,14 +193,14 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+						.addGroup(groupLayout.createSequentialGroup()
 							.addComponent(pLeft, GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 								.addComponent(btSave)
 								.addComponent(btCancel)))
-						.addComponent(pRight, GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE))
+						.addComponent(pRight, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		
@@ -167,11 +209,15 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Agenda", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		
+		JPanel panel_3 = new JPanel();
+		panel_3.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Log de Sistema", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		GroupLayout gl_pRight = new GroupLayout(pRight);
 		gl_pRight.setHorizontalGroup(
 			gl_pRight.createParallelGroup(Alignment.LEADING)
-				.addComponent(panel, GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
-				.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
+				.addComponent(panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
 		);
 		gl_pRight.setVerticalGroup(
 			gl_pRight.createParallelGroup(Alignment.LEADING)
@@ -179,20 +225,38 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 					.addComponent(panel, GroupLayout.PREFERRED_SIZE, 98, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 43, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(231, Short.MAX_VALUE))
+					.addPreferredGap(ComponentPlacement.RELATED, 118, Short.MAX_VALUE)
+					.addComponent(panel_3, GroupLayout.PREFERRED_SIZE, 113, GroupLayout.PREFERRED_SIZE))
 		);
+		
+		txtSystemLog = new JTextPane();
+		txtSystemLog.setEditable(false);
+		JScrollPane scrollSystemLog = new JScrollPane(txtSystemLog);
+		scrollSystemLog.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		
+		GroupLayout gl_panel_3 = new GroupLayout(panel_3);
+		gl_panel_3.setHorizontalGroup(
+			gl_panel_3.createParallelGroup(Alignment.LEADING)
+				.addComponent(scrollSystemLog, GroupLayout.DEFAULT_SIZE, 274, Short.MAX_VALUE)
+		);
+		gl_panel_3.setVerticalGroup(
+			gl_panel_3.createParallelGroup(Alignment.LEADING)
+				.addComponent(scrollSystemLog, GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE)
+		);
+		panel_3.setLayout(gl_panel_3);
 		
 		JLabel lblDiasASerem_1 = new JLabel("Dias a serem pesquisados");
 		
 		spinnerAgenda = new JSpinner();
+		spinnerAgenda.setModel(new SpinnerNumberModel(new Integer(15), new Integer(0), null, new Integer(1)));
 		GroupLayout gl_panel_1 = new GroupLayout(panel_1);
 		gl_panel_1.setHorizontalGroup(
 			gl_panel_1.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_1.createSequentialGroup()
 					.addComponent(lblDiasASerem_1)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(spinnerAgenda, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(49, Short.MAX_VALUE))
+					.addComponent(spinnerAgenda, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(108, Short.MAX_VALUE))
 		);
 		gl_panel_1.setVerticalGroup(
 			gl_panel_1.createParallelGroup(Alignment.LEADING)
@@ -207,6 +271,7 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 		JLabel lblDiasASerem = new JLabel("Dias a serem pesquisados");
 		
 		spinnerActivity = new JSpinner();
+		spinnerActivity.setModel(new SpinnerNumberModel(new Integer(10), new Integer(0), null, new Integer(1)));
 		
 		chkActivitySendEmail = new JCheckBox("Enviar Resumo como e-mail");
 		
@@ -223,11 +288,12 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 						.addGroup(gl_panel.createSequentialGroup()
 							.addComponent(lblDiasASerem)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(spinnerActivity, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+							.addComponent(spinnerActivity, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE))
 						.addGroup(gl_panel.createSequentialGroup()
+							.addContainerGap()
 							.addComponent(lblNewLabel)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(txtActivityEmail, GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE))
+							.addComponent(txtActivityEmail, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
 						.addComponent(chkActivitySendEmail))
 					.addContainerGap())
 		);
@@ -241,8 +307,8 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 					.addComponent(chkActivitySendEmail)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblNewLabel)
-						.addComponent(txtActivityEmail, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(txtActivityEmail, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblNewLabel))
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		panel.setLayout(gl_panel);
@@ -255,11 +321,7 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 	}
 	
 	@Override
-	void addListeners(){
-		spinnerActivity.addChangeListener(this);
-		spinnerAgenda.addChangeListener(this);
-		spinnerFeed.addChangeListener(this);
-		
+	protected void addListeners(){
 		chkActivitySendEmail.addItemListener(this);
 		txtActivityEmail.addKeyListener(this);
 		
@@ -270,6 +332,13 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 		
 		chkLikeUserStatuses.addItemListener(this);
 		btConfigureUsersToLikeStatuses.addActionListener(this);
+		
+		chkChatAutomaticAnswer.addItemListener(this);
+		txtChatAutomaticAnswer.addKeyListener(this);
+		
+		spinnerFeed.addChangeListener(this);
+		spinnerAgenda.addChangeListener(this);
+		spinnerActivity.addChangeListener(this);
 	}
 	
 	@Override
@@ -332,6 +401,7 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 		txtActivityEmail.setEnabled(chkActivitySendEmail.isSelected());
 		btConfigurePhotoDownloadPath.setEnabled(chkDownloadPhotos.isSelected());
 		btConfigureUsersToLikeStatuses.setEnabled(chkLikeUserStatuses.isSelected());
+		txtChatAutomaticAnswer.setEnabled(chkChatAutomaticAnswer.isSelected());
 	}
 	
 	@Override
@@ -341,10 +411,12 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 	
 	@Override
 	public void keyReleased(KeyEvent e){
-		if(e.getSource() == txtActivityEmail){
+		if(e.getComponent() == txtActivityEmail){
 			activityEmail = txtActivityEmail.getText().trim();
-			setChanged(true);
+		}else if(e.getComponent() == txtChatAutomaticAnswer){
+			chatAutomaticAnswer = txtChatAutomaticAnswer.getText().trim();
 		}
+		setChanged(true);
 	}
 
 	@Override
@@ -393,6 +465,12 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 		btConfigureUsersToLikeStatuses.setEnabled(flag);
 		user.getSettings().setUsersIdsToLikeStatuses(friendsIds);
 		
+		//Resposta automática do bate-papo
+		flag = chkChatAutomaticAnswer.isSelected();
+		txtChatAutomaticAnswer.setEnabled(flag);
+		user.getSettings().setEnableChatAutomaticAnswer(flag);
+		user.getSettings().setChatAutomaticAnswer(chatAutomaticAnswer);
+		
 		
 		//Armazena os dados no arquivo XML
 		try{
@@ -435,7 +513,8 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 		flag = user.getSettings().isSendActivitiesReportEmail();
 		chkActivitySendEmail.setSelected(flag);
 		txtActivityEmail.setEnabled(flag);
-		txtActivityEmail.setText(user.getSettings().getActivitiesReportEmail());
+		activityEmail = user.getSettings().getActivitiesReportEmail();
+		txtActivityEmail.setText(activityEmail);
 
 		//Curtir fotos onde é marcado
 		flag = user.getSettings().isLikePhotosWhenTagged();
@@ -451,10 +530,24 @@ public class SettingsPanel extends ConfigurePanel implements ChangeListener, Key
 		chkLikeUserStatuses.setSelected(flag);
 		friendsIds = user.getSettings().getUsersIdsToLikeStatuses();
 		btConfigureUsersToLikeStatuses.setEnabled(flag);
+		
+		//Resposta automática do bate-papo
+		flag = user.getSettings().isEnableChatAutomaticAnswer();
+		chkChatAutomaticAnswer.setSelected(flag);
+		txtChatAutomaticAnswer.setEnabled(flag);
+		chatAutomaticAnswer = user.getSettings().getChatAutomaticAnswer();
+		txtChatAutomaticAnswer.setText(chatAutomaticAnswer);
+		
+		//Log de sistema
+		try{
+			txtSystemLog.setText(FileManager.readFromFile(FileManager.LOGS_PATH, FileManager.getSystemLogFileName(user.getId())));
+		}catch(IOException | FacebookException e){
+			Alert.showError(e);
+		}
 	}
 	
 	@Override
-	void setChanged(boolean change){
+	protected void setChanged(boolean change){
 		btSave.setEnabled(change);
 		btCancel.setEnabled(change);
 		super.setChanged(change);

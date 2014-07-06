@@ -7,14 +7,14 @@ import javax.swing.JCheckBox;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import br.com.dsoo.facebook.view.adapters.CheckBoxFriend;
+import br.com.dsoo.facebook.view.components.CheckBoxList;
 
 public class CheckBoxListRenderer implements ListCellRenderer<Object>{
 
 	@Override
 	public Component getListCellRendererComponent(JList<?> list, Object value,
 			int index, boolean isSelected, boolean cellHasFocus){
-		CheckBoxFriend c = (CheckBoxFriend)value;
+		CheckBoxList.CheckBoxFriend c = (CheckBoxList.CheckBoxFriend)value;
 		
 		JCheckBox checkbox = new JCheckBox(c.getFriend().getName());
 		checkbox.setSelected(c.isSelected());

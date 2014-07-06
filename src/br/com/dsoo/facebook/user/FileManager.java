@@ -23,7 +23,7 @@ public class FileManager{
 	public static final String PHOTO = "photo_";
 	
 	public static final String LOGS_EXTENSION = ".log";
-	public static final String SETTINGS_EXTENSION = ".xml";
+	public static final String SETTINGS_EXTENSION = ".data";
 	public static final String PHOTO_EXTENSION = ".jpg";
 
 	
@@ -67,7 +67,7 @@ public class FileManager{
 		File file = new File(filePath);
 		file.mkdirs();
 		
-		prop.store(new OutputStreamWriter(new FileOutputStream(filePath + fileName)), "Última foto curtida e baixada");
+		prop.store(new OutputStreamWriter(new FileOutputStream(filePath + fileName)), "FaceApp");
 	}
 	
 	public static Properties loadProperties(String filePath, String fileName) throws IOException{
