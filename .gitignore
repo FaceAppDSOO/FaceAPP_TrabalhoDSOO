@@ -16,6 +16,9 @@ local.properties
 .settings/
 .loadpath
 
+# FaceApp
+*.facedata
+
 # External tool builders
 .externalToolBuilders/
 

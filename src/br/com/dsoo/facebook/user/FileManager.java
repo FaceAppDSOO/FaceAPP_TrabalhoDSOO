@@ -23,7 +23,7 @@ public class FileManager{
 	public static final String PHOTO = "photo_";
 	
 	public static final String LOGS_EXTENSION = ".log";
-	public static final String SETTINGS_EXTENSION = ".data";
+	public static final String SETTINGS_EXTENSION = ".facedata";
 	public static final String PHOTO_EXTENSION = ".jpg";
 
 	
