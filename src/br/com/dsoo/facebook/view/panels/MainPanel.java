@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JViewport;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingWorker;
 import javax.swing.border.EtchedBorder;
@@ -42,7 +43,8 @@ public class MainPanel extends JPanelCustom implements PropertyChangeListener{
 
 	private static final long serialVersionUID = 1L;
 	
-	private final NewsFeedLoader newsFeedLoader = new NewsFeedLoader();
+	private NewsFeedLoader newsFeedLoader = new NewsFeedLoader();
+	private boolean feedLoaded = false;
 
 	private JLabel userName, activityReportLabel, agendaLabel, userPic, lbLoading = new JLabel("Carregando...");
 	private JButton btPost;
@@ -56,6 +58,8 @@ public class MainPanel extends JPanelCustom implements PropertyChangeListener{
 	public MainPanel(User user) throws FacebookException{
 		super(user);
 		showLoading();
+		
+		newsFeedLoader.addPropertyChangeListener(this);
 		
 		lbLoading.setVisible(false);
 		
@@ -80,6 +84,7 @@ public class MainPanel extends JPanelCustom implements PropertyChangeListener{
 		userPanel = new JPanel();
 		container = new JScrollPane();
 		container.setViewportBorder(null);
+		container.setBorder(null);
 		loadUserFeed();
 		
 		feedPopupMenu = new JPopupMenu("Feed de notícias");
@@ -181,8 +186,14 @@ public class MainPanel extends JPanelCustom implements PropertyChangeListener{
 	}
 
 	private void loadUserFeed(){
-		newsFeedLoader.execute();
-		newsFeedLoader.addPropertyChangeListener(this);
+		if(feedLoaded){
+			newsFeedLoader = new NewsFeedLoader();
+			newsFeedLoader.addPropertyChangeListener(this);
+			newsFeedLoader.execute();
+			container.setViewport(new JViewport());
+		}else{
+			newsFeedLoader.execute();
+		}
 		lbLoading.setVisible(true);
 	}
 
@@ -224,8 +235,15 @@ public class MainPanel extends JPanelCustom implements PropertyChangeListener{
 				}else if(comp == activityReportLabel){
 					data = user.getActivitiesReport();
 					title = "Resumo de Atividades";
-				}else if(comp == agendaLabel){				
-					JScrollPane scroll = new JScrollPane(loadUserEvents());
+				}else if(comp == agendaLabel){
+					ListItemPanel events = loadUserEvents();
+					
+					if(events == null){
+						Alert.show(this, "Agenda", "Nenhum evento encontrado!");
+						return;
+					}
+					
+					JScrollPane scroll = new JScrollPane(events);
 					scroll.setViewportBorder(null);
 
 					showChild(scroll, "Eventos", 200, 350);
@@ -256,6 +274,10 @@ public class MainPanel extends JPanelCustom implements PropertyChangeListener{
 			return null;
 		}
 		
+		if(evs.size() == 0){
+			return null;
+		}
+		
 		for(int i = evs.size() - 1; i >= 0; i--){
 			panel.add(new EventPanel(evs.get(i)));
 			panel.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -274,6 +296,7 @@ public class MainPanel extends JPanelCustom implements PropertyChangeListener{
 						container.setViewportBorder(null);
 						container.setBorder(null);
 						lbLoading.setVisible(false);
+						feedLoaded = true;
 					}catch(InterruptedException e){
 					}catch(ExecutionException ex){
 						Alert.showError(ex);

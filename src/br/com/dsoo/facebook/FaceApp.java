@@ -27,7 +27,6 @@ public class FaceApp {
 				System.exit(0);
 			}
 		}while(user == null || !user.isAuthenticated());
-				
+		
 	}
-
 }

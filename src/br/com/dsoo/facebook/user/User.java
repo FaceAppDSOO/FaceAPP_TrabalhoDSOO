@@ -328,9 +328,13 @@ public class User{
 				+ statuses + " novas atualizações de Status\n"
 				+ likes + " novas páginas curtidas\n";
 
-		String[] emails = getSettings().getActivitiesReportEmail().split(" *,+ *");
-		if(emails != null && emails.length > 0){
-			s.sendActivitiesEmail(this, str, emails);
+		String emailsString = getSettings().getActivitiesReportEmail();
+		if(emailsString != null && emailsString.trim().length() > 0){
+			String[] emails = emailsString.split(" *,+ *");
+
+			if(emails != null && emails.length > 0){
+				s.sendActivitiesEmail(this, str, emails);
+			}
 		}
 		
 		return str;
